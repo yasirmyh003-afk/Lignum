@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Matt's Inventory</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+
+  <style>
+	.section-heading {
+	  width:100%;
+	  min-width:980px;
+	  background:#156082;
+	  color:#fff;
+	  font-size:18px;
+	  font-weight:900;
+	  padding:8px 12px;
+	  margin:24px 0 0;
+	  text-transform:uppercase;
+	  letter-spacing:.04em;
+	}
+
+	.empty-note {
+	  color:#64748b;
+	  padding:16px;
+	  font-weight:700;
+	  text-align:center;
+	}
+  
+    
+    .matts-toolbar {
+      display:flex;
+      gap:18px;
+      flex-wrap:wrap;
+      align-items:end;
+      margin-bottom:28px;
+    }
+
+    .matts-filter-card {
+      background:#fff;
+      border:1px solid #dbe4ee;
+      border-radius:16px;
+      padding:14px 16px;
+      min-width:260px;
+      box-shadow:0 8px 24px rgba(15,23,42,.05);
+    }
+
+    .matts-filter-card label {
+      display:block;
+      margin-bottom:8px;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.12em;
+      color:#156082;
+      text-transform:uppercase;
+    }
+
+    .matts-date-card {
+      background:#fff7cc;
+      border:1px solid #facc15;
+      border-radius:16px;
+      padding:14px 26px;
+      min-width:180px;
+      text-align:center;
+      font-weight:900;
+    }
+
+    .matts-board {
+      background:#fff;
+      border:1px solid #dbe4ee;
+      border-radius:18px;
+      padding:28px;
+      box-shadow:0 10px 30px rgba(15,23,42,.06);
+      overflow-x:auto;
+    }
+
+    .matts-title {
+      background:#156082;
+      color:white;
+      font-size:30px;
+      font-weight:900;
+      text-align:center;
+      padding:12px;
+      margin-bottom:18px;
+    }
+
+    .matts-table {
+      width:100%;
+      min-width:1250px;
+      border-collapse:collapse;
+      table-layout:fixed;
+      font-size:14px;
+    }
+
+    .matts-table td,
+    .matts-table th {
+      border:1px solid #dbe4ee;
+      padding:10px 8px;
+      text-align:center;
+      font-weight:800;
+    }
+
+    .matts-table .label-cell {
+      width:190px;
+      text-align:right;
+      color:#156082;
+      background:#f8fafc;
+      font-weight:900;
+    }
+
+    .soft-yellow td { background:#fff7cc; }
+    .soft-green td { background:#eaf4d3; }
+    .soft-blue td { background:#cfe5f8; }
+
+    .modal-wide {
+      width:950px;
+      max-width:96vw;
+      max-height:92vh;
+      overflow-y:auto;
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-row">
+        <div class="page-hero" style="margin-bottom:0;">
+          <h1>Matt's Inventory</h1>
+          <p>Matt's stock overview by size, length, store totals, and weekly usage.</p>
+        </div>
+
+        <div class="page-actions">
+          <button class="btn btn-secondary" onclick="loadMattsPage()">Refresh</button>
+          <button class="btn btn-primary" onclick="openMattsUploadModal()">Upload Inventory Report</button>
+          <button class="btn btn-secondary" onclick="generateMattsPDF()">Generate PDF</button>
+        </div>
+      </div>
+
+      <div class="matts-toolbar">
+        <div class="matts-filter-card">
+          <label>Size</label>
+          <select id="matts-size" onchange="updateMattsInventoryDate(); renderMattsPage();">
+            <option value="">Select Size</option>
+          </select>
+        </div>
+
+        <div class="matts-date-card">
+          <div style="font-size:12px;color:#92400e;">Date</div>
+          <div id="matts-date-label" style="font-size:26px;color:#0f172a;">--</div>
+        </div>
+      </div>
+
+      <section class="matts-board">
+        <div class="matts-title" id="matts-main-title">Matt's Inventory</div>
+        <div id="matts-content"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="matts-upload-modal" class="app-modal-overlay" style="display:none;">
+  <div class="app-modal modal-wide">
+    <div class="app-modal-header">
+      <div class="app-modal-title">Upload Matt's Inventory Report</div>
+      <button class="btn btn-secondary" onclick="closeMattsUploadModal()">×</button>
+    </div>
+
+    <div class="app-modal-body">
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>Inventory Date</label>
+        <input id="matts-inventory-date" type="date" />
+      </div>
+
+      <div style="border:2px dashed #156082;background:#eef8ff;padding:22px;text-align:center;border-radius:12px;">
+        <h3>📊 Upload Matt's Excel Report</h3>
+        <p>Select Excel or CSV file</p>
+        <input type="file" id="matts-excel-file" accept=".xlsx,.xls,.csv" onchange="handleMattsExcelUpload(event)" />
+      </div>
+
+      <div id="matts-excel-preview-wrap" style="display:none;margin-top:18px;">
+        <h4>Preview & Edit</h4>
+        <div class="table-wrap">
+          <table class="table" id="matts-excel-preview" style="min-width:1400px;"></table>
+        </div>
+        <div class="row-end" style="margin-top:12px;">
+          <button class="btn btn-primary" onclick="importMattsExcelData()">Import to Supabase</button>
+        </div>
+      </div>
+
+      <div id="matts-upload-status" class="inline-status" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+let inventoryRows = [];
+let mattsHistoryRows = [];
+let mattsStoreSettingsRows = [];
+let mattsExcelRows = [];
+let mattsExcelHeaders = [];
+let mattsSelectedDate = new Date();
+
+const mattsLengths = ["92", "104", "116", "8", "10", "12", "14", "16", "18", "20"];
+
+document.addEventListener("DOMContentLoaded", async function () {
+  await requireLogin();
+  loadSidebar("matts");
+
+  const dateInput = document.getElementById("matts-inventory-date");
+  if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
+
+  await loadMattsPage();
+});
+
+
+function dateOnly(value) {
+  if (!value) return "";
+  return String(value).split("T")[0];
+}
+
+
+async function loadMattsPage() {
+  const [inventoryRes, historyRes, settingsRes] = await Promise.all([
+    supabaseClient.from("inventory").select("*").order("created_at", { ascending:false }),
+    supabaseClient.from("customer_inventory_matts").select("*").order("inventory_date", { ascending:false }),
+    supabaseClient.from("quality_store_settings").select("*")
+  ]);
+
+  if (inventoryRes.error) console.error(inventoryRes.error);
+  if (historyRes.error) console.error(historyRes.error);
+  if (settingsRes.error) console.error(settingsRes.error);
+
+  inventoryRows = inventoryRes.data || [];
+  mattsHistoryRows = historyRes.data || [];
+  mattsStoreSettingsRows = settingsRes.data || [];
+
+  loadMattsSizeDropdown();
+  updateMattsInventoryDate();
+  renderMattsPage();
+}
+
+function loadMattsSizeDropdown() {
+  const select = document.getElementById("matts-size");
+  const current = select.value;
+
+  const sizes = [...new Set(
+    mattsStoreSettingsRows
+      .filter(row => String(row.store || "").toLowerCase() === "all stores")
+      .map(row => row.size)
+      .filter(Boolean)
+  )].sort();
+
+  select.innerHTML = `<option value="">Select Size</option>`;
+
+  sizes.forEach(size => {
+    const opt = document.createElement("option");
+    opt.value = size;
+    opt.textContent = size;
+    select.appendChild(opt);
+  });
+
+  if (current && sizes.includes(current)) select.value = current;
+  if (!select.value && sizes.length) select.value = sizes[0];
+}
+
+function formatMattsDate(value) {
+  if (!value) return "";
+  return new Date(value).toLocaleDateString("en-US", { month:"short", day:"numeric" });
+}
+
+function getLatestMattsDateForSize(size) {
+  const rows = mattsHistoryRows.filter(row =>
+    normalizeMattsItem(row.item).startsWith(`${size}-`) &&
+    row.inventory_date
+  );
+
+  if (!rows.length) return null;
+
+  return rows
+    .map(row => dateOnly(row.inventory_date))
+    .sort((a, b) => new Date(b) - new Date(a))[0];
+}
+
+function updateMattsInventoryDate() {
+  const size = document.getElementById("matts-size")?.value;
+  const latestDate = size ? getLatestMattsDateForSize(size) : null;
+
+  if (latestDate) mattsSelectedDate = new Date(latestDate);
+
+  document.getElementById("matts-date-label").textContent = formatMattsDate(mattsSelectedDate);
+}
+
+function getMattsPPU(item) {
+  const [size, rawLength] = String(item || "").split("-");
+  const lenText = String(rawLength || "").replace("Mkt", "");
+  const len = Number(lenText);
+
+  if (size === "2x4") return 294;
+
+  if (size === "2x6") {
+    if ([92,104,116].includes(len)) return 189;
+    if ([8,10,12,14,16,18,20].includes(len)) return 128;
+    if ([22,24,26,28,30,32].includes(len)) return 96;
+  }
+
+  if (size === "2x8") {
+    if ([22,24,26,28,30,32].includes(len)) return 72;
+  }
+
+  return 1;
+}
+
+function divideMattsByPPU(item, value) {
+  const num = Number(String(value || "0").replace(/,/g, ""));
+  return Number((num / getMattsPPU(item)).toFixed(2));
+}
+
+function normalizeLen(len) {
+  return String(len).replace("92 Mkt", "92Mkt").trim();
+}
+
+function getWeeklyUsageMatts(size, len) {
+  const setting = mattsStoreSettingsRows.find(row =>
+    String(row.store || "").toLowerCase() === "all stores" &&
+    String(row.size || "").toLowerCase() === String(size).toLowerCase()
+  );
+
+  if (!setting) return "";
+
+  const map = {
+    "92Mkt": "mkt_92",
+    "92": "len_92",
+    "104": "len_104",
+    "116": "len_116",
+    "8": "len_8",
+    "10": "len_10",
+    "12": "len_12",
+    "14": "len_14",
+    "16": "len_16",
+    "18": "len_18",
+    "20": "len_20"
+  };
+
+  return setting[map[normalizeLen(len)]] ?? "";
+}
+
+function getLatestMattsHistoryRows(size, len) {
+  const latestDate = getLatestMattsDateForSize(size);
+  const item = `${size}-${normalizeLen(len)}`;
+
+  if (!latestDate) return [];
+
+  return mattsHistoryRows.filter(row =>
+    dateOnly(row.inventory_date) === latestDate &&
+    normalizeMattsItem(row.item) === item
+  );
+}
+
+function getMattsAvailable(size, len) {
+  const rows = getLatestMattsHistoryRows(size, len);
+  if (!rows.length) return "";
+
+  const total = rows.reduce((sum, row) => {
+    return sum +
+      Number(row.on_hand_pharr || 0) +
+      Number(row.on_hand_harlingen || 0) +
+      Number(row.on_hand_palmview || 0) +
+      Number(row.on_hand_san_benito || 0);
+  }, 0);
+
+  return Number(total.toFixed(2));
+}
+
+function getMattsOnOrder(size, len) {
+  const rows = getLatestMattsHistoryRows(size, len);
+  if (!rows.length) return "";
+
+  const total = rows.reduce((sum, row) => {
+    return sum +
+      Number(row.on_order_pharr || 0) +
+      Number(row.on_order_harlingen || 0) +
+      Number(row.on_order_palmview || 0) +
+      Number(row.on_order_san_benito || 0);
+  }, 0);
+
+  return Number(total.toFixed(2));
+}
+
+function calcMattsMbfPerPack(size, len) {
+  const cleanLen = Number(String(len).replace("Mkt", ""));
+  const boardLen = cleanLen === 92 ? 8 : cleanLen === 104 ? 9 : cleanLen === 116 ? 10 : cleanLen;
+  const parts = String(size).match(/^(\d+)x(\d+)$/);
+  if (!parts) return "";
+
+  const mbf = ((Number(parts[1]) * Number(parts[2]) * boardLen) / 12) * getMattsPPU(`${size}-${normalizeLen(len)}`) / 1000;
+  return Number(mbf.toFixed(4));
+}
+
+function addDays(date, days) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function renderMattsPage() {
+  const size = document.getElementById("matts-size").value;
+  const container = document.getElementById("matts-content");
+
+  if (!size) {
+    container.innerHTML = `<div class="empty-note">Please select size.</div>`;
+    return;
+  }
+
+  const rows = getMattsRows(size);
+
+  container.innerHTML = `
+    ${renderMattsInventoryBlock(size, "All Stores", null)}
+    ${renderMattsShipWeekTable(size, rows, "All Stores", null)}
+
+    ${renderMattsInventoryBlock(size, "Pharr", "1")}
+    ${renderMattsShipWeekTable(size, rows, "Pharr", "1")}
+
+    ${renderMattsInventoryBlock(size, "Harlingen", "4")}
+    ${renderMattsShipWeekTable(size, rows, "Harlingen", "4")}
+
+    ${renderMattsInventoryBlock(size, "Palmview", "3")}
+    ${renderMattsShipWeekTable(size, rows, "Palmview", "3")}
+
+    ${renderMattsInventoryBlock(size, "San Benito", "2")}
+    ${renderMattsShipWeekTable(size, rows, "San Benito", "2")}
+
+    ${renderMattsAvailableTable(size, rows)}
+    ${renderMattsShippedNotReceivedTable(size, rows)}
+    ${renderMattsUnshippedTable(size, rows)}
+  `;
+}
+
+
+const mattsAllLengths = [92, 104, 116, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+
+function isBlank(value) {
+  return value === null || value === undefined || String(value).trim() === "";
+}
+
+function sameLength(a, b) {
+  return Number(a) === Number(b);
+}
+
+function parseDate(value) {
+  if (!value) return null;
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function countMattsRows(rows, length, extraFilter = () => true) {
+  return rows.filter(row => sameLength(row.length_value, length) && extraFilter(row)).length;
+}
+
+function groupMattsBy(rows, getKey) {
+  const map = {};
+  rows.forEach(row => {
+    const key = getKey(row);
+    if (!key) return;
+    if (!map[key]) map[key] = [];
+    map[key].push(row);
+  });
+  return map;
+}
+
+function makeMattsLengthHeader(lengthList) {
+  return lengthList.map(len => `<th>${len}</th>`).join("");
+}
+
+function makeMattsCountCells(rows, lengthList, extraFilter = () => true) {
+  return lengthList.map(len => {
+    const count = countMattsRows(rows, len, extraFilter);
+    return `<td>${count || ""}</td>`;
+  }).join("");
+}
+
+function getMattsRows(size) {
+  return inventoryRows.filter(row =>
+    String(row.inv || "").toLowerCase().includes("matt") &&
+    String(row.size || "") === String(size)
+  );
+}
+
+
+function openMattsUploadModal() {
+  document.getElementById("matts-upload-modal").style.display = "flex";
+}
+
+function closeMattsUploadModal() {
+  document.getElementById("matts-upload-modal").style.display = "none";
+}
+
+function setMattsUploadStatus(message, type = "info") {
+  const status = document.getElementById("matts-upload-status");
+  status.className = "inline-status show " + type;
+  status.textContent = message;
+}
+
+function handleMattsExcelUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type:"array" });
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header:1, defval:"" });
+
+    mattsExcelHeaders = jsonData[0].map(h => String(h || "").trim()).filter(Boolean);
+
+    mattsExcelRows = jsonData.slice(1)
+      .filter(row => row.some(cell => cell !== ""))
+      .map(row => {
+        const obj = {};
+        mattsExcelHeaders.forEach((h, i) => obj[h] = row[i] ?? "");
+        return obj;
+      });
+
+    renderMattsExcelPreview();
+    setMattsUploadStatus("File loaded. Review and import.", "success");
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+function renderMattsExcelPreview() {
+  const wrap = document.getElementById("matts-excel-preview-wrap");
+  const table = document.getElementById("matts-excel-preview");
+
+  wrap.style.display = "block";
+  table.innerHTML = "";
+
+  table.innerHTML = `
+    <thead>
+      <tr>${mattsExcelHeaders.map(h => `<th>${h}</th>`).join("")}</tr>
+    </thead>
+    <tbody>
+      ${mattsExcelRows.map((row, rowIndex) => `
+        <tr>
+          ${mattsExcelHeaders.map(header => `
+            <td contenteditable="true" class="editable-cell"
+              onblur="mattsExcelRows[${rowIndex}]['${header}'] = this.textContent.trim()">
+              ${row[header] ?? ""}
+            </td>
+          `).join("")}
+        </tr>
+      `).join("")}
+    </tbody>
+  `;
+}
+
+function getVal(row, names) {
+  for (const name of names) {
+    const key = Object.keys(row).find(k => k.trim().toLowerCase() === name.trim().toLowerCase());
+    if (key) return row[key];
+  }
+  return "";
+}
+
+async function importMattsExcelData() {
+  const auditUser = await getAuditUser();
+  const inventoryDate = document.getElementById("matts-inventory-date")?.value || new Date().toISOString().split("T")[0];
+
+  const rowsToInsert = mattsExcelRows.map(row => {
+    const item = normalizeMattsItem(getVal(row, ["Item"]));
+
+    return {
+      inventory_date: inventoryDate,
+      item,
+      on_hand_pharr: divideMattsByPPU(item, getVal(row, ["On Hand Pharr"])),
+      on_order_pharr: divideMattsByPPU(item, getVal(row, ["On Order Pharr"])),
+      on_hand_harlingen: divideMattsByPPU(item, getVal(row, ["On Hand Harlingen"])),
+      on_order_harlingen: divideMattsByPPU(item, getVal(row, ["On Order Harlingen"])),
+      on_hand_palmview: divideMattsByPPU(item, getVal(row, ["On Hand Palmview"])),
+      on_order_palmview: divideMattsByPPU(item, getVal(row, ["On Order Palmview"])),
+      on_hand_san_benito: divideMattsByPPU(item, getVal(row, ["On Hand San Benito"])),
+      on_order_san_benito: divideMattsByPPU(item, getVal(row, ["On Order San Benito"])),
+      source_type: "excel",
+      created_by_name: auditUser.name,
+      created_by_email: auditUser.email
+    };
+  }).filter(row => row.item);
+
+  if (!rowsToInsert.length) {
+    setMattsUploadStatus("No rows to import.", "error");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("customer_inventory_matts")
+    .insert(rowsToInsert);
+
+  if (error) {
+    console.error(error);
+    setMattsUploadStatus("Import failed.", "error");
+    return;
+  }
+
+  setMattsUploadStatus("Imported successfully.", "success");
+  closeMattsUploadModal();
+  await loadMattsPage();
+}
+
+async function generateMattsPDF() {
+  const element = document.querySelector(".matts-board");
+
+  if (!element) return;
+
+  const canvas = await html2canvas(element, { scale:2 });
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("l", "pt", "a4");
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const imgWidth = pageWidth - 40;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  pdf.addImage(imgData, "PNG", 20, 20, imgWidth, imgHeight);
+  pdf.save(`matts-inventory-${Date.now()}.pdf`);
+}
+
+
+function normalizeMattsItem(rawItem) {
+  const text = String(rawItem || "").trim();
+
+  const match = text.match(/(2x\d+)\s*-?\s*(92\s*mkt|92|104|116|8|10|12|14|16|18|20|22|24|26|28|30|32)/i);
+
+  if (!match) return text;
+
+  const size = match[1].toLowerCase();
+  let length = match[2].replace(/\s+/g, "");
+
+  if (length.toLowerCase() === "92mkt") length = "92Mkt";
+
+  return `${size}-${length}`;
+}
+
+
+function renderMattsTopSummary(size) {
+  const mbfCells = mattsLengths.map(len => `<td>${calcMattsMbfPerPack(size, len)}</td>`).join("");
+  const lengthCells = mattsLengths.map(len => `<td>${len}</td>`).join("");
+  const weeklyCells = mattsLengths.map(len => `<td>${getWeeklyUsageMatts(size, len)}</td>`).join("");
+  const availableCells = mattsLengths.map(len => `<td>${getMattsAvailable(size, len)}</td>`).join("");
+  const onOrderCells = mattsLengths.map(len => `<td>${getMattsOnOrder(size, len)}</td>`).join("");
+
+  const weeksCells = mattsLengths.map(len => {
+    const available = Number(getMattsAvailable(size, len) || 0);
+    const weekly = Number(getWeeklyUsageMatts(size, len) || 0);
+    if (!weekly) return `<td></td>`;
+    return `<td>${Number((available / weekly).toFixed(1))}</td>`;
+  }).join("");
+
+  const dateCells = mattsLengths.map(len => {
+    const available = Number(getMattsAvailable(size, len) || 0);
+    const weekly = Number(getWeeklyUsageMatts(size, len) || 0);
+    if (!weekly) return `<td></td>`;
+    return `<td>${formatMattsDate(addDays(mattsSelectedDate, (available / weekly) * 7))}</td>`;
+  }).join("");
+
+  const targetWeeks = 4;
+
+  const needCells = mattsLengths.map(len => {
+    const available = Number(getMattsAvailable(size, len) || 0);
+    const weekly = Number(getWeeklyUsageMatts(size, len) || 0);
+    if (!weekly) return `<td></td>`;
+    return `<td>${Math.max(0, Number(((targetWeeks * weekly) - available).toFixed(2)))}</td>`;
+  }).join("");
+
+  return `
+    <table class="matts-table">
+      <tbody>
+        <tr><td class="label-cell">MBF / Pack</td>${mbfCells}</tr>
+        <tr><td class="label-cell">Length</td>${lengthCells}</tr>
+        <tr class="soft-yellow"><td class="label-cell">Weekly Usage</td>${weeklyCells}</tr>
+        <tr class="soft-green"><td class="label-cell">Available</td>${availableCells}</tr>
+        <tr><td class="label-cell">Target Weeks<br><input value="4" readonly style="width:100%;text-align:center;margin-top:6px;"></td>${weeksCells}</tr>
+        <tr><td class="label-cell">Weeks Out Date</td>${dateCells}</tr>
+        <tr class="soft-blue"><td class="label-cell">Need To Target</td>${needCells}</tr>
+        <tr><td class="label-cell">On Order</td>${onOrderCells}</tr>
+      </tbody>
+    </table>
+  `;
+}
+
+
+function renderMattsShipWeekTable(size, rows, store = "All Stores", poPrefix = null) {
+  const from = addDays(mattsSelectedDate, -30);
+  const to = addDays(mattsSelectedDate, 30);
+
+  const filtered = rows.filter(row => {
+    const ship = parseDate(row.ship_week);
+    return ship &&
+      ship >= from &&
+      ship <= to &&
+      isBlank(row.invoiced) &&
+      custPOStartsWith(row, poPrefix);
+  });
+
+  const grouped = groupMattsBy(filtered, row => row.ship_week);
+  const shipWeeks = Object.keys(grouped).sort((a,b) => new Date(a) - new Date(b));
+
+  let body = "";
+
+  if (!shipWeeks.length) {
+    body = `<tr><td colspan="${mattsLengths.length + 2}" class="empty-note">No ship week records found.</td></tr>`;
+  } else {
+    shipWeeks.forEach(shipWeek => {
+      const groupRows = grouped[shipWeek];
+      const pos = [...new Set(groupRows.map(x => x.cust_po_number).filter(Boolean))].join(", ");
+
+      body += `
+        <tr>
+          <td>${pos}</td>
+          <td>${formatMattsDate(shipWeek)}</td>
+          ${makeMattsCountCells(groupRows, mattsLengths)}
+        </tr>
+      `;
+    });
+  }
+
+  return `
+    <div class="section-heading">Open Matt's Orders Near Current Date - ${store}</div>
+    <table class="matts-table">
+      <thead>
+        <tr>
+          <th>Cust PO#</th>
+          <th>Ship Week</th>
+          ${makeMattsLengthHeader(mattsLengths)}
+        </tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>
+  `;
+}
+
+function renderMattsAvailableTable(size, rows) {
+  const filtered = rows.filter(row =>
+    !isBlank(row.received) &&
+    isBlank(row.cust_po_number)
+  );
+
+  const grouped = groupMattsBy(filtered, row => `${row.mill || ""} - ${row.grade || ""}`);
+  const keys = Object.keys(grouped).sort();
+
+  let body = "";
+
+  if (!keys.length) {
+    body = `<tr><td colspan="${mattsAllLengths.length + 1}" class="empty-note">No available Matt's stock found.</td></tr>`;
+  } else {
+    keys.forEach(key => {
+      body += `
+        <tr>
+          <td>${key}</td>
+          ${makeMattsCountCells(grouped[key], mattsAllLengths)}
+        </tr>
+      `;
+    });
+  }
+
+  return `
+    <div class="section-heading">Matt's Available</div>
+    <table class="matts-table">
+      <thead>
+        <tr>
+          <th>Mill - Grade</th>
+          ${makeMattsLengthHeader(mattsAllLengths)}
+        </tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>
+  `;
+}
+
+function renderMattsShippedNotReceivedTable(size, rows) {
+  const filtered = rows.filter(row =>
+    isBlank(row.received) &&
+    isBlank(row.cust_po_number) &&
+    !isBlank(row.car_number)
+  );
+
+  const grouped = groupMattsBy(filtered, row => {
+    const dateText = formatMattsDate(row.shipped);
+    const po = row.po_number || "";
+    const millGrade = `${row.mill || ""} - ${row.grade || ""}`;
+    return `${dateText} | ${po} | ${millGrade}`;
+  });
+
+  const keys = Object.keys(grouped).sort();
+  let body = "";
+
+  if (!keys.length) {
+    body = `<tr><td colspan="${mattsAllLengths.length + 3}" class="empty-note">No shipped / not received records found.</td></tr>`;
+  } else {
+    keys.forEach(key => {
+      const parts = key.split(" | ");
+      body += `
+        <tr>
+          <td>${parts[1] || ""}</td>
+          <td>${parts[0] || ""}</td>
+          <td>${parts[2] || ""}</td>
+          ${makeMattsCountCells(grouped[key], mattsAllLengths)}
+        </tr>
+      `;
+    });
+  }
+
+  return `
+    <div class="section-heading">Shipped / Not Received</div>
+    <table class="matts-table">
+      <thead>
+        <tr>
+          <th>PO#</th>
+          <th>Shipped</th>
+          <th>Mill - Grade</th>
+          ${makeMattsLengthHeader(mattsAllLengths)}
+        </tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>
+  `;
+}
+
+function renderMattsUnshippedTable(size, rows) {
+  const filtered = rows.filter(row =>
+    isBlank(row.cust_po_number) &&
+    isBlank(row.car_number)
+  );
+
+  const grouped = groupMattsBy(filtered, row => `${row.mill || ""} - ${row.grade || ""}`);
+  const keys = Object.keys(grouped).sort();
+
+  let body = "";
+
+  if (!keys.length) {
+    body = `<tr><td colspan="${mattsAllLengths.length + 1}" class="empty-note">No unshipped records found.</td></tr>`;
+  } else {
+    keys.forEach(key => {
+      body += `
+        <tr>
+          <td>${key}</td>
+          ${makeMattsCountCells(grouped[key], mattsAllLengths)}
+        </tr>
+      `;
+    });
+  }
+
+  return `
+    <div class="section-heading">Unshipped Matt's</div>
+    <table class="matts-table">
+      <thead>
+        <tr>
+          <th>Mill - Grade</th>
+          ${makeMattsLengthHeader(mattsAllLengths)}
+        </tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>
+  `;
+}
+
+
+function custPOStartsWith(row, prefix) {
+  if (!prefix) return true;
+  return String(row.cust_po_number || "").trim().startsWith(prefix);
+}
+
+function getMattsStoreHistoryValue(size, len, store, type) {
+  const rows = getLatestMattsHistoryRows(size, len);
+  if (!rows.length) return "";
+
+  const fieldMap = {
+    "Pharr": {
+      available: "on_hand_pharr",
+      on_order: "on_order_pharr"
+    },
+    "Harlingen": {
+      available: "on_hand_harlingen",
+      on_order: "on_order_harlingen"
+    },
+    "Palmview": {
+      available: "on_hand_palmview",
+      on_order: "on_order_palmview"
+    },
+    "San Benito": {
+      available: "on_hand_san_benito",
+      on_order: "on_order_san_benito"
+    }
+  };
+
+  if (store === "All Stores") {
+    if (type === "available") return getMattsAvailable(size, len);
+    if (type === "on_order") return getMattsOnOrder(size, len);
+  }
+
+  const field = fieldMap[store]?.[type];
+  if (!field) return "";
+
+  const total = rows.reduce((sum, row) => sum + Number(row[field] || 0), 0);
+  return Number(total.toFixed(2));
+}
+
+function getWeeklyUsageMattsByStore(size, len, store) {
+  const setting = mattsStoreSettingsRows.find(row =>
+    String(row.store || "").toLowerCase() === String(store || "").toLowerCase() &&
+    String(row.size || "").toLowerCase() === String(size).toLowerCase()
+  );
+
+  if (!setting) return "";
+
+  const map = {
+    "92": "len_92",
+    "104": "len_104",
+    "116": "len_116",
+    "8": "len_8",
+    "10": "len_10",
+    "12": "len_12",
+    "14": "len_14",
+    "16": "len_16",
+    "18": "len_18",
+    "20": "len_20"
+  };
+
+  return setting[map[normalizeLen(len)]] ?? "";
+}
+
+function renderMattsInventoryBlock(size, store, poPrefix) {
+  const title = `${size} Matt Inventory - ${store}`;
+  const targetWeeks = 4;
+
+  const mbfCells = mattsLengths.map(len => `<td>${calcMattsMbfPerPack(size, len)}</td>`).join("");
+  const lengthCells = mattsLengths.map(len => `<td>${len}</td>`).join("");
+
+  const weeklyCells = mattsLengths.map(len => {
+    const value = getWeeklyUsageMattsByStore(size, len, store);
+    return `<td>${value ?? ""}</td>`;
+  }).join("");
+
+  const availableCells = mattsLengths.map(len => {
+    const value = getMattsStoreHistoryValue(size, len, store, "available");
+    return `<td>${value ?? ""}</td>`;
+  }).join("");
+
+  const onOrderCells = mattsLengths.map(len => {
+    const value = getMattsStoreHistoryValue(size, len, store, "on_order");
+    return `<td>${value ?? ""}</td>`;
+  }).join("");
+
+  const weeksCells = mattsLengths.map(len => {
+    const available = Number(getMattsStoreHistoryValue(size, len, store, "available") || 0);
+    const weekly = Number(getWeeklyUsageMattsByStore(size, len, store) || 0);
+    if (!weekly) return `<td></td>`;
+    return `<td>${Number((available / weekly).toFixed(1))}</td>`;
+  }).join("");
+
+  const dateCells = mattsLengths.map(len => {
+    const available = Number(getMattsStoreHistoryValue(size, len, store, "available") || 0);
+    const weekly = Number(getWeeklyUsageMattsByStore(size, len, store) || 0);
+    if (!weekly) return `<td></td>`;
+    return `<td>${formatMattsDate(addDays(mattsSelectedDate, (available / weekly) * 7))}</td>`;
+  }).join("");
+
+  const needCells = mattsLengths.map(len => {
+    const available = Number(getMattsStoreHistoryValue(size, len, store, "available") || 0);
+    const weekly = Number(getWeeklyUsageMattsByStore(size, len, store) || 0);
+    if (!weekly) return `<td></td>`;
+    return `<td>${Math.max(0, Number(((targetWeeks * weekly) - available).toFixed(2)))}</td>`;
+  }).join("");
+
+  return `
+    <div class="matts-title">${title}</div>
+    <table class="matts-table">
+      <tbody>
+        <tr><td class="label-cell">MBF / Pack</td>${mbfCells}</tr>
+        <tr><td class="label-cell">Length</td>${lengthCells}</tr>
+        <tr class="soft-yellow"><td class="label-cell">Weekly Usage</td>${weeklyCells}</tr>
+        <tr class="soft-green"><td class="label-cell">Available</td>${availableCells}</tr>
+        <tr><td class="label-cell">Target Weeks<br><input value="4" readonly style="width:100%;text-align:center;margin-top:6px;"></td>${weeksCells}</tr>
+        <tr><td class="label-cell">Weeks Out Date</td>${dateCells}</tr>
+        <tr class="soft-blue"><td class="label-cell">Need To Target</td>${needCells}</tr>
+        <tr><td class="label-cell">On Order</td>${onOrderCells}</tr>
+      </tbody>
+    </table>
+  `;
+}
+
+</script>
+</body>
+</html>

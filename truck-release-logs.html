@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Truck Release Logs</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-row">
+        <div class="page-hero" style="margin-bottom:0;">
+          <h1>Truck Release Logs</h1>
+          <p>View saved truck release rows and header details.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary" onclick="loadTruckReleaseLogs()">Refresh</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="card-pad">
+          <div class="card-title-row">
+            <div class="icon">🚚</div>
+            <div class="card-title">Truck Release Logs</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table" style="min-width:2300px;">
+            <thead>
+              <tr>
+                <th>PDF URL</th>
+                <th>Timestamp</th>
+                <th>SO#</th>
+                <th>Cust PO#</th>
+                <th>Status</th>
+                <th>Customer</th>
+                <th>Carrier</th>
+                <th>Location</th>
+                <th>Add’l Email</th>
+                <th>Rate</th>
+                <th>Ship Due</th>
+                <th>MBF</th>
+                <th>IB#</th>
+                <th>CAR#</th>
+                <th>MILL</th>
+                <th>SPECIES</th>
+                <th>GRADE</th>
+                <th>SIZE</th>
+                <th>LENGTH</th>
+                <th>PACK SIZE</th>
+				<th>Action By</th>
+              </tr>
+            </thead>
+            <tbody id="truck-release-logs-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  loadSidebar("truck-release-logs");
+  loadTruckReleaseLogs();
+});
+
+async function loadTruckReleaseLogs() {
+  const { data: rowLogs, error: rowError } = await supabaseClient
+    .from("truck_release_logs")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (rowError) {
+    console.error(rowError);
+    return;
+  }
+
+  const { data: pdfLogs, error: pdfError } = await supabaseClient
+    .from("truck_release_pdf_logs")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (pdfError) {
+    console.error(pdfError);
+  }
+
+  const pdfMap = {};
+  (pdfLogs || []).forEach(pdf => {
+    const key = `${pdf.so_number || ""}__${pdf.cust_po_number || ""}`;
+    if (!pdfMap[key]) {
+      pdfMap[key] = pdf.pdf_url || "";
+    }
+  });
+
+  const tbody = document.getElementById("truck-release-logs-body");
+  tbody.innerHTML = "";
+
+  rowLogs.forEach(row => {
+    const key = `${row.so_number || ""}__${row.cust_po_number || ""}`;
+    const pdfUrl = pdfMap[key] || "";
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${pdfUrl ? `<a href="${pdfUrl}" target="_blank">Open PDF</a>` : ""}</td>
+      <td>${new Date(row.created_at).toLocaleString()}</td>
+      <td>${row.so_number || ""}</td>
+      <td>${row.cust_po_number || ""}</td>
+      <td>${row.status || ""}</td>
+      <td>${row.customer || ""}</td>
+      <td>${row.carrier_reference || ""}</td>
+      <td>${row.location || ""}</td>
+      <td>${row.additional_email || ""}</td>
+      <td>${row.rate || ""}</td>
+      <td>${row.ship_due || ""}</td>
+      <td>${row.mbf || ""}</td>
+      <td>${row.ib_number || ""}</td>
+      <td>${row.car_number || ""}</td>
+      <td>${row.mill || ""}</td>
+      <td>${row.specie || ""}</td>
+      <td>${row.grade || ""}</td>
+      <td>${row.size || ""}</td>
+      <td>${row.length_value || ""}</td>
+      <td>${row.pack_size || ""}</td>
+	  <td>${row.created_by_name || row.created_by_email || ""}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>

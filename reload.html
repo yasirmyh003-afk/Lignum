@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reload</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+
+  <style>
+    .reload-toolbar {
+      display: flex;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .reload-filter-card {
+      background: #ffffff;
+      border: 1px solid #dbe4ee;
+      border-radius: 16px;
+      padding: 14px 16px;
+      width: 260px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .reload-filter-card label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #156082;
+      text-transform: uppercase;
+    }
+
+    .reload-filter-card select {
+      width: 100%;
+      border: 0;
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 15px;
+      color: #0f172a;
+      outline: none;
+    }
+
+    .reload-date-card {
+      background: #fff7cc;
+      border: 1px solid #facc15;
+      border-radius: 16px;
+      padding: 12px 18px;
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .reload-date-card .small {
+      font-size: 12px;
+      font-weight: 900;
+      color: #92400e;
+      margin-bottom: 4px;
+    }
+
+    .reload-date-card .date {
+      font-size: 38px;
+      line-height: 1;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .reload-board {
+      background: #ffffff;
+      border: 1px solid #dbe4ee;
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .reload-section {
+      margin-bottom: 34px;
+      border: 1px solid #111827;
+      overflow-x: auto;
+      background: #eef7cc;
+    }
+
+    .reload-section.white {
+      background: #ffffff;
+    }
+
+    .reload-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .reload-title {
+      background: #156082;
+      color: #fff;
+      text-align: center;
+      font-size: 30px;
+      font-weight: 900;
+      padding: 9px;
+      letter-spacing: 0.04em;
+    }
+
+    .reload-subtitle {
+      background: #156082;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+    }
+
+    .reload-table {
+      width: 100%;
+      min-width: 1100px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    .reload-table th {
+      background: #156082;
+      color: #fff;
+      padding: 7px 6px;
+      text-align: center;
+      font-weight: 900;
+      border-right: 1px solid #156082;
+      white-space: nowrap;
+    }
+
+    .reload-table td {
+      padding: 7px 6px;
+      border-right: 1px solid #111827;
+      border-bottom: 1px solid rgba(17, 24, 39, 0.15);
+      text-align: center;
+      color: #0f172a;
+      font-weight: 700;
+      min-height: 28px;
+    }
+
+    .reload-table td.text-left {
+      text-align: left;
+    }
+
+    .reload-table td.text-right {
+      text-align: right;
+    }
+
+    .reload-table .wide {
+      width: 30%;
+    }
+
+    .reload-table .med {
+      width: 12%;
+    }
+
+    .reload-table .small {
+      width: 5%;
+    }
+
+    .reload-total-row td {
+      background: #f9fafb;
+      border-top: 3px solid #000;
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .reload-empty {
+      padding: 18px !important;
+      text-align: center !important;
+      color: #64748b !important;
+      background: #f8fafc;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-shell">
+    <div id="sidebar-mount" class="sidebar-mount"></div>
+
+    <main class="page-shell">
+      <div class="page-frame">
+        <div class="page-hero">
+          <h1>Reload</h1>
+          <p>View staged units and remaining OTG units by location and size.</p>
+        </div>
+
+<div id="reload-pdf-area">
+
+        <div class="reload-toolbar">
+          <div class="reload-filter-card">
+            <label>Location</label>
+            <select id="location_filter" onchange="renderReloadTables()">
+              <option value="">Select Location</option>
+            </select>
+          </div>
+
+          <div class="reload-filter-card">
+            <label>Size</label>
+            <select id="size_filter" onchange="renderReloadTables()">
+              <option value="">Select Size</option>
+            </select>
+          </div>
+
+          <div class="reload-date-card">
+            <div class="small" id="selected-location-label">Location</div>
+            <div class="date" id="today-label">Today</div>
+          </div>
+		  
+		  <button class="btn btn-secondary no-pdf" onclick="loadReloadData()">Refresh</button>
+		  <button class="btn btn-primary no-pdf" onclick="generateReloadPDF()">Generate PDF</button>
+        </div>
+
+        <section class="reload-board">
+          <div id="reload-tables"></div>
+        </section>
+</div>		
+		
+      </div>
+    </main>
+  </div>
+
+  <script src="layout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    let reloadRows = [];
+
+    const reloadLengths = [92, 104, 116, 8, 10, 12, 14, 16, 18, 20];
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      loadSidebar("reload");
+      setTodayLabel();
+      await loadReloadData();
+    });
+
+    function isBlank(value) {
+      return value === null || value === undefined || String(value).trim() === "";
+    }
+
+    function normalizeDateOnly(value) {
+      if (isBlank(value)) return null;
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return null;
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function setTodayLabel() {
+      const today = new Date();
+      const label = today.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit"
+      }).replace(" ", "-");
+
+      document.getElementById("today-label").textContent = label;
+    }
+
+    async function loadReloadData() {
+      const { data, error } = await supabaseClient
+        .from("inventory")
+        .select("*")
+        .order("so_number", { ascending: true });
+
+      if (error) {
+        console.error("Reload load error:", error);
+        showAppModal({
+          type: "error",
+          title: "Load Failed",
+          message: "Could not load Reload data from Inventory."
+        });
+        return;
+      }
+
+      reloadRows = data || [];
+      fillFilters();
+      renderReloadTables();
+    }
+
+    function fillFilters() {
+      fillLocationFilter();
+      fillSizeFilter();
+    }
+
+    function fillLocationFilter() {
+      const select = document.getElementById("location_filter");
+      const currentValue = select.value;
+
+      const locations = [...new Set(
+        reloadRows
+          .map(row => row.location)
+          .filter(value => !isBlank(value))
+          .map(value => String(value))
+      )].sort();
+
+      select.innerHTML = `<option value="">Select Location</option>`;
+
+      locations.forEach(location => {
+        const option = document.createElement("option");
+        option.value = location;
+        option.textContent = location;
+        select.appendChild(option);
+      });
+
+      if (currentValue && locations.includes(currentValue)) {
+        select.value = currentValue;
+      } else if (!currentValue && locations.length > 0) {
+        select.value = locations[0];
+      }
+    }
+
+    function fillSizeFilter() {
+      const select = document.getElementById("size_filter");
+      const currentValue = select.value;
+
+      const sizes = [...new Set(
+        reloadRows
+          .map(row => row.size)
+          .filter(value => !isBlank(value))
+          .map(value => String(value))
+      )].sort();
+
+      select.innerHTML = `<option value="">Select Size</option>`;
+
+      sizes.forEach(size => {
+        const option = document.createElement("option");
+        option.value = size;
+        option.textContent = size;
+        select.appendChild(option);
+      });
+
+      if (currentValue && sizes.includes(currentValue)) {
+        select.value = currentValue;
+      } else if (!currentValue && sizes.length > 0) {
+        select.value = sizes[0];
+      }
+    }
+
+    function getSelectedLocation() {
+      return document.getElementById("location_filter").value;
+    }
+
+    function getSelectedSize() {
+      return document.getElementById("size_filter").value;
+    }
+
+    function uniqueText(values) {
+      return [...new Set(
+        values
+          .filter(value => !isBlank(value))
+          .map(value => String(value))
+      )].join(", ");
+    }
+
+    function renderReloadTables() {
+      const location = getSelectedLocation();
+      const size = getSelectedSize();
+
+      document.getElementById("selected-location-label").textContent = location || "Location";
+
+      const container = document.getElementById("reload-tables");
+      container.innerHTML = "";
+
+      if (!location || !size) {
+        container.innerHTML = `
+          <div class="reload-empty">
+            Please select Location and Size.
+          </div>
+        `;
+        return;
+      }
+
+      container.appendChild(createStagedSection(size));
+      container.appendChild(createRemainingOtgSection(size));
+    }
+
+    /* =========================================================
+       TABLE 1: STAGED UNITS
+       Sheet logic:
+       location = selected
+       size = selected
+       invoiced blank
+       so_number not blank
+       grouped by SO#
+    ========================================================= */
+
+    function getStagedRows(size) {
+      const location = getSelectedLocation();
+
+      return reloadRows.filter(row => {
+        return (
+          String(row.location || "") === String(location || "") &&
+          String(row.size || "").toLowerCase() === String(size).toLowerCase() &&
+          !isBlank(row.so_number) &&
+          isBlank(row.invoiced)
+        );
+      });
+    }
+
+    function buildStagedSummary(size) {
+      const rows = getStagedRows(size);
+      const soMap = {};
+
+      rows.forEach(row => {
+        const so = String(row.so_number || "").trim();
+        if (!so) return;
+
+        if (!soMap[so]) {
+          soMap[so] = {
+            so,
+            carNumbers: [],
+            shipWeeks: [],
+            counts: {}
+          };
+
+          reloadLengths.forEach(len => {
+            soMap[so].counts[len] = 0;
+          });
+        }
+
+        soMap[so].carNumbers.push(row.car_number);
+        soMap[so].shipWeeks.push(row.ship_week);
+
+        const len = Number(row.length_value);
+        if (reloadLengths.includes(len)) {
+          soMap[so].counts[len] += 1;
+        }
+      });
+
+      return Object.values(soMap).map(item => {
+        const total = reloadLengths.reduce((sum, len) => sum + item.counts[len], 0);
+
+        return {
+          carNumbers: uniqueText(item.carNumbers),
+          shipWeeks: uniqueText(item.shipWeeks),
+          so: item.so,
+          counts: item.counts,
+          total
+        };
+      });
+    }
+
+    function createStagedSection(size) {
+      const section = document.createElement("div");
+      section.className = "reload-section";
+
+      const title = document.createElement("div");
+      title.className = "reload-title";
+      title.textContent = size;
+      section.appendChild(title);
+
+      const subtitle = document.createElement("div");
+      subtitle.className = "reload-subtitle";
+      subtitle.textContent = "Staged Units";
+      section.appendChild(subtitle);
+
+      const table = document.createElement("table");
+      table.className = "reload-table";
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th class="wide">CAR#</th>
+            <th class="med">SHIP WEEK</th>
+            <th class="med">SO#</th>
+            ${reloadLengths.map(len => `<th class="small">${len}</th>`).join("")}
+            <th class="small">SUM</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = table.querySelector("tbody");
+      const summary = buildStagedSummary(size);
+
+      if (summary.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="${4 + reloadLengths.length}" class="reload-empty">
+              No staged units found for ${size}.
+            </td>
+          </tr>
+        `;
+      } else {
+        summary.forEach(item => {
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td class="text-left">${item.carNumbers}</td>
+            <td>${item.shipWeeks}</td>
+            <td>${item.so}</td>
+            ${reloadLengths.map(len => `<td>${item.counts[len] || ""}</td>`).join("")}
+            <td>${item.total || ""}</td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+
+        tbody.appendChild(createTotalRow(summary, "STAGED UNITS"));
+      }
+
+      section.appendChild(table);
+      return section;
+    }
+
+    /* =========================================================
+       TABLE 2: REMAINING UNITS OTG
+       Sheet logic:
+       location = selected
+       size = selected
+       received not blank
+       received < today
+       sold blank
+       grouped by PO#
+       length counts only where:
+       received not blank
+       so_number blank
+    ========================================================= */
+
+    function getRemainingRows(size) {
+      const location = getSelectedLocation();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      return reloadRows.filter(row => {
+        const receivedDate = normalizeDateOnly(row.received);
+
+        return (
+          String(row.location || "") === String(location || "") &&
+          String(row.size || "").toLowerCase() === String(size).toLowerCase() &&
+          !isBlank(row.received) &&
+          receivedDate &&
+          receivedDate < today &&
+          isBlank(row.sold)
+        );
+      });
+    }
+
+    function buildRemainingSummary(size) {
+      const rows = getRemainingRows(size);
+      const poMap = {};
+
+      rows.forEach(row => {
+        const po = String(row.po_number || "").trim();
+        if (!po) return;
+
+        if (!poMap[po]) {
+          poMap[po] = {
+            po,
+            received: row.received,
+            mill: row.mill,
+            carNumbers: [],
+            counts: {}
+          };
+
+          reloadLengths.forEach(len => {
+            poMap[po].counts[len] = 0;
+          });
+        }
+
+        poMap[po].carNumbers.push(row.car_number);
+
+        const len = Number(row.length_value);
+
+        if (
+          reloadLengths.includes(len) &&
+          !isBlank(row.received) &&
+          isBlank(row.so_number)
+        ) {
+          poMap[po].counts[len] += 1;
+        }
+      });
+
+      return Object.values(poMap).map(item => {
+        const total = reloadLengths.reduce((sum, len) => sum + item.counts[len], 0);
+
+        return {
+          po: item.po,
+          received: formatDate(item.received),
+          mill: item.mill || "",
+          carNumbers: uniqueText(item.carNumbers),
+          counts: item.counts,
+          total
+        };
+      });
+    }
+
+    function createRemainingOtgSection(size) {
+      const section = document.createElement("div");
+      section.className = "reload-section white";
+
+      const title = document.createElement("div");
+      title.className = "reload-title";
+      title.textContent = size;
+      section.appendChild(title);
+
+      const subtitle = document.createElement("div");
+      subtitle.className = "reload-subtitle";
+      subtitle.textContent = "Remaining Units OTG";
+      section.appendChild(subtitle);
+
+      const table = document.createElement("table");
+      table.className = "reload-table";
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th class="med">PO#</th>
+            <th class="med">RECEIVED</th>
+            <th class="med">MILL</th>
+            <th class="wide">CAR#</th>
+            ${reloadLengths.map(len => `<th class="small">${len}</th>`).join("")}
+            <th class="small">SUM</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = table.querySelector("tbody");
+      const summary = buildRemainingSummary(size);
+
+      if (summary.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="${5 + reloadLengths.length}" class="reload-empty">
+              No remaining OTG units found for ${size}.
+            </td>
+          </tr>
+        `;
+      } else {
+        summary.forEach(item => {
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${item.po}</td>
+            <td>${item.received}</td>
+            <td>${item.mill}</td>
+            <td class="text-left">${item.carNumbers}</td>
+            ${reloadLengths.map(len => `<td>${item.counts[len] || ""}</td>`).join("")}
+            <td>${item.total || ""}</td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+
+        tbody.appendChild(createTotalRow(summary, "REMAINING UNITS OTG", 4));
+      }
+
+      section.appendChild(table);
+      return section;
+    }
+
+    function createTotalRow(summary, label, colspan = 3) {
+      const totalRow = document.createElement("tr");
+      totalRow.className = "reload-total-row";
+
+      const totals = {};
+      reloadLengths.forEach(len => {
+        totals[len] = summary.reduce((sum, item) => sum + (item.counts[len] || 0), 0);
+      });
+
+      const grandTotal = reloadLengths.reduce((sum, len) => sum + totals[len], 0);
+
+      totalRow.innerHTML = `
+        <td colspan="${colspan}" class="text-right">${label}</td>
+        ${reloadLengths.map(len => `<td>${totals[len] || ""}</td>`).join("")}
+        <td>${grandTotal || ""}</td>
+      `;
+
+      return totalRow;
+    }
+
+    function formatDate(value) {
+      if (isBlank(value)) return "";
+      const d = new Date(value);
+      if (isNaN(d.getTime())) return String(value);
+
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric"
+      });
+    }
+	
+	
+	async function generateReloadPDF() {
+  try {
+    const location = getSelectedLocation();
+    const size = getSelectedSize();
+
+    if (!location || !size) {
+      showAppModal({
+        type: "error",
+        title: "Missing Filters",
+        message: "Please select Location and Size first."
+      });
+      return;
+    }
+
+    const buttons = document.querySelectorAll(".no-pdf");
+    buttons.forEach(btn => btn.style.display = "none");
+
+    const area = document.getElementById("reload-pdf-area");
+
+    const canvas = await html2canvas(area, {
+      scale: 2,
+      backgroundColor: "#ffffff"
+    });
+
+    buttons.forEach(btn => btn.style.display = "");
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("landscape", "pt", "a4");
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pageWidth - 30;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(
+      canvas.toDataURL("image/png"),
+      "PNG",
+      15,
+      15,
+      imgWidth,
+      Math.min(imgHeight, pageHeight - 30)
+    );
+
+    const pdfBlob = pdf.output("blob");
+
+    const fileName = `Reload-${location}-${size}-${Date.now()}.pdf`
+      .replace(/[\/\\:*?"<>|#]/g, "-")
+      .replace(/\s+/g, "-");
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from("reload-pdfs")
+      .upload(fileName, pdfBlob, {
+        contentType: "application/pdf",
+        upsert: true
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicData } = supabaseClient.storage
+      .from("reload-pdfs")
+      .getPublicUrl(fileName);
+
+    const pdfUrl = publicData.publicUrl;
+
+    await supabaseClient.from("reload_pdf_logs").insert([{
+      pdf_url: pdfUrl,
+      location,
+      size,
+      pdf_name: fileName
+    }]);
+
+    window.open(pdfUrl, "_blank");
+
+    showAppModal({
+      type: "success",
+      title: "PDF Generated",
+      message: "Reload PDF was generated and saved to logs."
+    });
+
+  } catch (error) {
+    document.querySelectorAll(".no-pdf").forEach(btn => btn.style.display = "");
+    console.error("Reload PDF error:", error);
+
+    showAppModal({
+      type: "error",
+      title: "PDF Failed",
+      message: error.message || "Could not generate Reload PDF."
+    });
+  }
+}
+  </script>
+</body>
+</html>

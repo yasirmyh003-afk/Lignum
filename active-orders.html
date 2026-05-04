@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Active Orders</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+
+  <style>
+    .ao-card {
+      background:#fff;
+      border:1px solid #dbe4ee;
+      border-radius:18px;
+      padding:22px;
+      box-shadow:0 10px 30px rgba(15,23,42,.06);
+    }
+
+    .ao-filter {
+      max-width:360px;
+      margin-bottom:24px;
+    }
+
+    .ao-filter label {
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.12em;
+      color:#156082;
+      text-transform:uppercase;
+      display:block;
+      margin-bottom:8px;
+    }
+
+    .ao-table {
+      width:100%;
+      min-width:1100px;
+      border-collapse:separate;
+      border-spacing:0;
+      font-size:14px;
+      overflow:hidden;
+    }
+
+    .ao-table th {
+      background:#156082;
+      color:#fff;
+      padding:12px 10px;
+      text-align:center;
+      font-weight:900;
+      text-transform:uppercase;
+      border-right:1px solid #0f4f69;
+    }
+
+    .ao-table td {
+      padding:12px 10px;
+      text-align:center;
+      font-weight:700;
+      border-bottom:1px solid #e2e8f0;
+      color:#0f172a;
+    }
+
+    .ao-empty {
+      padding:26px;
+      text-align:center;
+      color:#64748b;
+      font-weight:800;
+    }
+
+    .ao-pill {
+      background:#eaf4d3;
+      color:#156082;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:900;
+      display:inline-block;
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-row">
+        <div class="page-hero" style="margin-bottom:0;">
+          <h1>📋 Active Orders</h1>
+          <p>View active customer orders grouped by location, SO#, PO#, and size.</p>
+        </div>
+
+        <div class="page-actions">
+          <button class="btn btn-secondary" onclick="loadActiveOrders()">Refresh</button>
+        </div>
+      </div>
+
+      <section class="ao-card">
+        <div class="ao-filter">
+          <label>Customer</label>
+          <select id="customer-select" onchange="renderActiveOrders()">
+            <option value="">Select Customer</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table class="ao-table">
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>SO#</th>
+                <th>Cust PO#</th>
+                <th>Size</th>
+                <th>Tally</th>
+                <th>Cost</th>
+                <th>Sales Price</th>
+                <th>MBF</th>
+                <th>Sold</th>
+                <th>Ship Week</th>
+              </tr>
+            </thead>
+            <tbody id="active-orders-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+let inventoryRows = [];
+
+document.addEventListener("DOMContentLoaded", async function () {
+  await requireLogin();
+  loadSidebar("active-orders");
+  await loadActiveOrders();
+});
+
+function isBlank(value) {
+  return value === null || value === undefined || String(value).trim() === "";
+}
+
+function num(value) {
+  return Number(String(value || "0").replace(/,/g, "")) || 0;
+}
+
+function avg(arr) {
+  const clean = arr.map(num).filter(v => !Number.isNaN(v));
+  if (!clean.length) return "";
+  return clean.reduce((a,b) => a + b, 0) / clean.length;
+}
+
+function formatNumber(value, digits = 2) {
+  if (value === "" || value === null || value === undefined) return "";
+  return Number(value).toLocaleString(undefined, { maximumFractionDigits: digits });
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("en-US", { month:"short", day:"numeric" });
+}
+
+async function loadActiveOrders() {
+  const { data, error } = await supabaseClient
+    .from("inventory")
+    .select("*")
+    .order("customer", { ascending:true });
+
+  if (error) {
+    console.error(error);
+    showAppModal({
+      type:"error",
+      title:"Load Failed",
+      message:"Could not load inventory records."
+    });
+    return;
+  }
+
+  inventoryRows = data || [];
+  loadCustomerDropdown();
+  renderActiveOrders();
+}
+
+function loadCustomerDropdown() {
+  const select = document.getElementById("customer-select");
+  const current = select.value;
+
+  const customers = [...new Set(
+    inventoryRows
+      .map(r => r.customer)
+      .filter(v => !isBlank(v))
+      .map(String)
+  )].sort();
+
+  select.innerHTML = `<option value="">Select Customer</option>`;
+
+  customers.forEach(customer => {
+    const opt = document.createElement("option");
+    opt.value = customer;
+    opt.textContent = customer;
+    select.appendChild(opt);
+  });
+
+  if (current && customers.includes(current)) {
+    select.value = current;
+  }
+}
+
+function buildTally(lengths) {
+  const counts = {};
+
+  lengths.forEach(length => {
+    const len = Number(length);
+    if (!len) return;
+    counts[len] = (counts[len] || 0) + 1;
+  });
+
+  const studLens = [92,104,116];
+  const dimLens = [8,10,12,14,16,18,20];
+
+  const studParts = studLens
+    .filter(l => counts[l])
+    .map(l => `${counts[l]}/${l}s`);
+
+  if (studParts.length) return studParts.join("-");
+
+  return dimLens.map(l => counts[l] || 0).join("-");
+}
+
+function getGroupedRows(customer) {
+  const filtered = inventoryRows.filter(row =>
+    String(row.customer || "") === String(customer || "")
+  );
+
+  const group = {};
+
+  filtered.forEach(row => {
+    const loc = row.location || "";
+    const so = row.so_number || "";
+    const po = row.cust_po_number || "";
+    const size = row.size || "";
+
+    const key = `${loc}|${so}|${po}|${size}`;
+
+    if (!group[key]) {
+      group[key] = {
+        loc,
+        so,
+        po,
+        size,
+        lengths: [],
+        cost: [],
+        price: [],
+        mbf: [],
+        sold: [],
+        ship: []
+      };
+    }
+
+    group[key].lengths.push(row.length_value);
+    group[key].cost.push(row.cost);
+    group[key].price.push(row.sales_price);
+    group[key].mbf.push(row.mbf);
+    group[key].sold.push(row.sold);
+    group[key].ship.push(row.ship_week);
+  });
+
+  const output = Object.values(group).map(g => ({
+    location: g.loc,
+    so: g.so,
+    po: g.po,
+    size: g.size,
+    tally: buildTally(g.lengths),
+    cost: avg(g.cost),
+    sales_price: avg(g.price),
+    mbf: avg(g.mbf),
+    sold: g.sold.find(v => !isBlank(v)) || "",
+    ship_week: g.ship.find(v => !isBlank(v)) || ""
+  }));
+
+  output.sort((a,b) => {
+    if (a.location !== b.location) return String(a.location).localeCompare(String(b.location));
+    if (Number(a.so) !== Number(b.so)) return Number(a.so || 0) - Number(b.so || 0);
+    return String(a.size).localeCompare(String(b.size));
+  });
+
+  return output;
+}
+
+function renderActiveOrders() {
+  const customer = document.getElementById("customer-select").value;
+  const tbody = document.getElementById("active-orders-body");
+
+  tbody.innerHTML = "";
+
+  if (!customer) {
+    tbody.innerHTML = `<tr><td colspan="10" class="ao-empty">Select a customer to view active orders.</td></tr>`;
+    return;
+  }
+
+  const rows = getGroupedRows(customer);
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="ao-empty">No active orders found for this customer.</td></tr>`;
+    return;
+  }
+
+  const colors = [
+    "#f3f4f5",
+    "#E3F2FD",
+    "#E8F5E9",
+    "#FFF3E0",
+    "#F3E5F5",
+    "#E0F7FA",
+    "#FFFDE7",
+    "#FBE9E7"
+  ];
+
+  let currentSO = null;
+  let colorIndex = -1;
+
+  rows.forEach(row => {
+    if (row.so !== currentSO) {
+      currentSO = row.so;
+      colorIndex++;
+    }
+
+    const tr = document.createElement("tr");
+    tr.style.background = colors[colorIndex % colors.length];
+
+    tr.innerHTML = `
+      <td>${row.location || ""}</td>
+      <td><span class="ao-pill">${row.so || ""}</span></td>
+      <td>${row.po || ""}</td>
+      <td>${row.size || ""}</td>
+      <td>${row.tally || ""}</td>
+      <td>${formatNumber(row.cost, 2)}</td>
+      <td>${formatNumber(row.sales_price, 2)}</td>
+      <td>${formatNumber(row.mbf, 2)}</td>
+      <td>${formatDate(row.sold)}</td>
+      <td>${formatDate(row.ship_week)}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>

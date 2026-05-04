@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Users</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-row">
+        <div class="page-hero" style="margin-bottom:0;">
+          <h1>Users</h1>
+          <p>Add users, manage roles, status, and send password reset emails.</p>
+        </div>
+
+        <div class="page-actions">
+          <button class="btn btn-secondary" onclick="loadUsers()">Refresh</button>
+        </div>
+      </div>
+
+      <section id="add-user-card" class="card" style="margin-bottom:24px;">
+        <div class="card-pad">
+          <div class="card-title-row">
+            <div class="icon">➕</div>
+            <div class="card-title">Add User Login</div>
+          </div>
+
+          <div class="form-grid cols-4">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input id="full_name" type="text" placeholder="John Smith" />
+            </div>
+
+            <div class="form-group">
+              <label>Email</label>
+              <input id="email" type="email" placeholder="user@email.com" />
+            </div>
+
+            <div class="form-group">
+              <label>Temporary Password</label>
+              <input id="password" type="password" placeholder="Minimum 6 characters" />
+            </div>
+
+            <div class="form-group">
+              <label>Role</label>
+              <select id="role">
+                <option value="Admin">Admin</option>
+                <option value="Manager">Manager</option>
+                <option value="User" selected>User</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Status</label>
+              <select id="status">
+                <option value="Active" selected>Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row-end" style="margin-top:18px;">
+            <button class="btn btn-primary" onclick="addUser()">Add User Login</button>
+          </div>
+
+          <p style="margin-top:14px;color:#64748b;font-size:13px;">
+            Note: New users will receive email confirmation if Supabase email confirmation is enabled.
+          </p>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-pad" style="padding-bottom:12px;">
+          <div class="card-title-row">
+            <div class="icon">👤</div>
+            <div class="card-title">Users List</div>
+          </div>
+
+          <div id="users-status" class="inline-status"></div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table" style="min-width:1100px;">
+            <thead>
+              <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  await requireLogin();
+  loadSidebar("users");
+
+  const currentUser = await getCurrentAppUser();
+  const addUserCard = document.getElementById("add-user-card");
+
+  if (!currentUser || currentUser.role !== "Admin") {
+    if (addUserCard) addUserCard.style.display = "none";
+  }
+
+  loadUsers();
+});
+
+function setUsersStatus(message, type = "info") {
+  const status = document.getElementById("users-status");
+  status.className = "inline-status show " + type;
+  status.textContent = message;
+
+  clearTimeout(status._timer);
+  status._timer = setTimeout(() => {
+    status.className = "inline-status";
+    status.textContent = "";
+  }, 3000);
+}
+
+function safeValue(value) {
+  return String(value || "").replaceAll('"', "&quot;");
+}
+
+
+async function loadUsers() {
+  const currentUser = await getCurrentAppUser();
+  const isAdmin = currentUser && currentUser.role === "Admin";
+
+  const { data, error } = await supabaseClient
+    .from("app_users")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    setUsersStatus("Failed to load users.", "error");
+    return;
+  }
+
+  const tbody = document.getElementById("users-body");
+  tbody.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">No users found.</td></tr>`;
+    return;
+  }
+
+  data.forEach(user => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${user.full_name || ""}</td>
+      <td>${user.email || ""}</td>
+      <td>${user.role || ""}</td>
+      <td>${user.status || ""}</td>
+      <td>${user.created_at ? new Date(user.created_at).toLocaleString() : ""}</td>
+      <td>
+        <button class="btn btn-warning btn-sm" onclick="sendPasswordReset('${safeValue(user.email)}')">
+          Reset Password
+        </button>
+
+        ${
+          isAdmin
+            ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}')">Delete</button>`
+            : ``
+        }
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+
+async function addUser() {
+  const fullName = document.getElementById("full_name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const role = document.getElementById("role").value;
+  const status = document.getElementById("status").value;
+
+  if (!fullName || !email || !password) {
+    setUsersStatus("Full name, email, and password are required.", "error");
+    return;
+  }
+
+  if (password.length < 6) {
+    setUsersStatus("Password must be at least 6 characters.", "error");
+    return;
+  }
+
+  const { error: authError } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      emailRedirectTo: window.location.origin + "/login.html"
+    }
+  });
+
+  if (authError) {
+    console.error(authError);
+    setUsersStatus(authError.message, "error");
+    return;
+  }
+
+  const { error: profileError } = await supabaseClient
+    .from("app_users")
+    .insert([{
+      full_name: fullName,
+      email: email,
+      role: role,
+      status: status
+    }]);
+
+  if (profileError) {
+    console.error(profileError);
+    setUsersStatus("Login created, but profile insert failed.", "error");
+    return;
+  }
+
+  document.getElementById("full_name").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("role").value = "User";
+  document.getElementById("status").value = "Active";
+
+  setUsersStatus("User created. Confirmation email will be sent if enabled in Supabase.", "success");
+  loadUsers();
+}
+
+
+
+async function sendPasswordReset(email) {
+  if (!email) {
+    setUsersStatus("Email not found.", "error");
+    return;
+  }
+
+  const ok = confirm("Send password reset email to " + email + "?");
+  if (!ok) return;
+
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + "/update-password.html"
+  });
+
+  if (error) {
+    console.error(error);
+    setUsersStatus(error.message, "error");
+    return;
+  }
+
+  setUsersStatus("Password reset email sent.", "success");
+}
+
+async function deleteUser(id) {
+  const ok = confirm("Delete this user profile? This removes app profile only, not Supabase Auth login.");
+  if (!ok) return;
+
+  const { error } = await supabaseClient
+    .from("app_users")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    setUsersStatus("Failed to delete user.", "error");
+    return;
+  }
+
+  setUsersStatus("User profile deleted.", "success");
+  loadUsers();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Truck Release</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+
+  <style>
+    .tr-layout { display:flex; flex-direction:column; gap:24px; }
+    .tr-form,.tr-table-card{background:#fff;border:1px solid #dbe4ee;border-radius:18px;padding:22px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+    .tr-form-title{font-size:20px;font-weight:900;color:#156082;margin-bottom:18px;letter-spacing:.04em;text-transform:uppercase}
+    .tr-grid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:14px}
+    .tr-field{border:1px solid #dbe4ee;border-radius:12px;overflow:hidden;background:#f8fafc}
+    .tr-field label{background:#156082;color:#fff;font-weight:900;font-size:12px;padding:9px 10px;display:block;text-transform:uppercase}
+    .tr-field input,.tr-field select{border:0;outline:none;padding:12px;font-size:14px;background:#f8fafc;width:100%;min-height:44px}
+    .tr-action{margin-top:18px;display:flex;justify-content:center}
+    .tr-action .btn{width:230px;height:54px}
+    .tr-table-card{overflow-x:auto}
+    .tr-table-title{width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed;background:#156082;color:#fff;text-align:center;font-size:24px;font-weight:900;padding:10px;border-radius:8px 8px 0 0;text-transform:uppercase}
+    .truck-table{width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed;font-size:13px}
+    .truck-table th{background:#156082;color:#fff;padding:9px 8px;text-align:center;font-weight:900;border:1px solid #0f4f69;text-transform:uppercase}
+    .truck-table td{padding:8px;text-align:center;border:1px solid #dbe4ee;color:#0f172a;font-weight:700;background:#eef7df}
+    .truck-table tbody tr:nth-child(even) td{background:#f6fbef}
+    .tr-subtotal-row td{background:#fff!important;border-top:3px solid #000;font-weight:900}
+    .tr-empty{padding:22px!important;background:#f8fafc!important;color:#64748b!important;text-align:center!important}
+
+    .pdf-template-wrap {
+      position: fixed;
+      left: -99999px;
+      top: 0;
+      width: 1120px;
+      background: #fff;
+      font-family: Arial, sans-serif;
+      color: #000;
+      padding: 20px;
+    }
+
+    .pdf-page {
+      width: 1080px;
+      background: #fff;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .pdf-main-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 22px;
+    }
+
+    .pdf-top-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr 260px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .pdf-box {
+      border: 1px solid #000;
+      min-height: 120px;
+    }
+
+    .pdf-box-title {
+      border-bottom: 1px solid #000;
+      font-weight: 900;
+      padding: 4px;
+      font-size: 14px;
+    }
+
+    .pdf-box-body {
+      padding: 5px;
+      line-height: 1.45;
+      font-size: 12px;
+    }
+
+    .pdf-mid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .pdf-green-row,
+    .pdf-pink-row,
+    .pdf-blue-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid #000;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .pdf-green-row div { background:#e8f0cf; padding:5px; border-right:1px solid #000; }
+    .pdf-pink-row div { background:#ead8d8; padding:7px; border-right:1px solid #000; font-size:22px; }
+    .pdf-blue-row div { background:#dbeaf3; padding:7px; border-right:1px solid #000; font-size:22px; }
+
+    .pdf-carrier {
+      border:1px solid #000;
+      text-align:center;
+    }
+
+    .pdf-carrier-title {
+      font-size:16px;
+      font-weight:900;
+      border-bottom:1px solid #000;
+      padding:4px;
+    }
+
+    .pdf-carrier-grid {
+      display:grid;
+      grid-template-columns:1fr 1.6fr 1.2fr 1.5fr 1.5fr;
+    }
+
+    .pdf-carrier-grid div {
+      border-right:1px solid #000;
+      padding:6px;
+      font-size:11px;
+    }
+
+.pdf-info-bar {
+  width: 760px;
+  margin: 18px auto 0;
+  display: grid;
+  grid-template-columns: 58px 78px 112px 96px 118px 78px 64px 70px 90px 90px 90px;
+  font-weight: 900;
+  text-align: center;
+  align-items: end;
+  font-size: 12px;
+}
+
+.pdf-info-bar div {
+  min-height: 16px;
+}
+
+    .pdf-table {
+      width: 760px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .pdf-table th {
+      border: 1px solid #000;
+      padding: 3px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .pdf-table td {
+      border: 1px solid #c9c9c9;
+      padding: 3px;
+      text-align: center;
+      height: 17px;
+    }
+
+    .pdf-signatures {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:160px;
+      margin-top:42px;
+      font-weight:900;
+      font-size:13px;
+    }
+
+    .pdf-line {
+      border-bottom:1px solid #000;
+      height:22px;
+      margin-bottom:26px;
+    }
+
+    @media(max-width:1300px){.tr-grid{grid-template-columns:repeat(3,minmax(160px,1fr))}}
+  </style>
+</head>
+
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-hero">
+        <h1>Truck Release</h1>
+        <p>Create truck release records from confirmed inventory sales orders.</p>
+      </div>
+
+      <div class="tr-layout">
+        <section class="tr-form">
+          <div class="tr-form-title">Release Details</div>
+
+          <div class="tr-grid">
+            <div class="tr-field">
+              <label>Lignum SO#</label>
+              <select id="so_number" onchange="handleSOChange()">
+                <option value="">Select SO#</option>
+              </select>
+            </div>
+
+            <div class="tr-field">
+              <label>Cust PO#</label>
+              <input id="cust_po_number" readonly />
+            </div>
+
+            <div class="tr-field">
+              <label>Status</label>
+              <input id="status" readonly />
+            </div>
+
+            <div class="tr-field">
+              <label>Destination</label>
+              <input id="customer" readonly />
+            </div>
+
+            <div class="tr-field">
+              <label>Carrier</label>
+              <select id="carrier_reference">
+                <option value="">Select Carrier</option>
+              </select>
+            </div>
+
+            <div class="tr-field">
+              <label>Location</label>
+              <input id="location" readonly />
+            </div>
+
+            <div class="tr-field">
+              <label>Add’l Email</label>
+              <input id="additional_email" placeholder="Optional email" />
+            </div>
+
+            <div class="tr-field">
+              <label>Rate</label>
+              <input id="rate" type="number" step="0.01" placeholder="$" />
+            </div>
+
+            <div class="tr-field">
+              <label>Ship Due</label>
+              <input id="ship_due" readonly />
+            </div>
+          </div>
+
+          <div class="tr-action">
+            <button class="btn btn-primary" onclick="generateTruckReleasePDF()">
+              Generate & Send PDF
+            </button>
+          </div>
+        </section>
+
+        <section class="tr-table-card">
+          <div class="tr-table-title">Truck Release</div>
+
+          <table class="truck-table">
+            <thead>
+              <tr>
+                <th>MBF</th>
+                <th>IB#</th>
+                <th>CAR#</th>
+                <th>MILL</th>
+                <th>SPECIES</th>
+                <th>GRADE</th>
+                <th>SIZE</th>
+                <th>LENGTH</th>
+                <th>PACK SIZE</th>
+              </tr>
+            </thead>
+            <tbody id="truck-release-body"></tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="pdf-template-wrap" class="pdf-template-wrap"></div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+let inventoryRows = [];
+let carrierRows = [];
+let originRows = [];
+let customerRows = [];
+let selectedRows = [];
+
+document.addEventListener("DOMContentLoaded", async function () {
+  loadSidebar("truck-release");
+  await loadTruckReleaseData();
+});
+
+function isBlank(value) {
+  return value === null || value === undefined || String(value).trim() === "";
+}
+
+async function loadTruckReleaseData() {
+  const { data: inventoryData, error: inventoryError } = await supabaseClient
+    .from("inventory")
+    .select("*")
+    .order("so_number", { ascending: true });
+
+  if (inventoryError) {
+    showAppModal({ type:"error", title:"Load Failed", message:"Could not load inventory rows." });
+    return;
+  }
+
+  inventoryRows = inventoryData || [];
+
+  const { data: carrierData } = await supabaseClient.from("carriers").select("*").order("reference", { ascending:true });
+  const { data: originData } = await supabaseClient.from("origins").select("*");
+  const { data: customerData } = await supabaseClient.from("customers").select("*");
+
+  carrierRows = carrierData || [];
+  originRows = originData || [];
+  customerRows = customerData || [];
+
+  fillSOOptions();
+  fillCarrierOptions();
+}
+
+function fillSOOptions() {
+  const select = document.getElementById("so_number");
+  const soNumbers = [...new Set(inventoryRows.map(r => r.so_number).filter(v => !isBlank(v)).map(String))].sort();
+
+  select.innerHTML = `<option value="">Select SO#</option>`;
+  soNumbers.forEach(so => {
+    const option = document.createElement("option");
+    option.value = so;
+    option.textContent = so;
+    select.appendChild(option);
+  });
+}
+
+function fillCarrierOptions() {
+  const select = document.getElementById("carrier_reference");
+  select.innerHTML = `<option value="">Select Carrier</option>`;
+
+  carrierRows.forEach(row => {
+    const option = document.createElement("option");
+    option.value = row.reference || "";
+    option.textContent = row.reference || "";
+    select.appendChild(option);
+  });
+}
+
+function handleSOChange() {
+  const soNumber = document.getElementById("so_number").value;
+
+  if (!soNumber) {
+    clearTruckReleaseForm();
+    renderTruckRows([]);
+    return;
+  }
+
+  selectedRows = inventoryRows
+    .filter(row => String(row.so_number || "") === String(soNumber))
+    .sort((a, b) => {
+      const carA = String(a.car_number || "");
+      const carB = String(b.car_number || "");
+      if (carA !== carB) return carA.localeCompare(carB);
+
+      const sizeA = String(a.size || "");
+      const sizeB = String(b.size || "");
+      if (sizeA !== sizeB) return sizeA.localeCompare(sizeB);
+
+      return Number(a.length_value || 0) - Number(b.length_value || 0);
+    });
+
+  const first =
+    selectedRows.find(row => !isBlank(row.inv) && String(row.inv).toLowerCase() !== "open") ||
+    selectedRows.find(row => !isBlank(row.inv)) ||
+    selectedRows[0];
+
+  if (!first) {
+    clearTruckReleaseForm();
+    renderTruckRows([]);
+    return;
+  }
+
+  document.getElementById("cust_po_number").value = first.cust_po_number || "";
+  document.getElementById("status").value = first.inv || "";
+  document.getElementById("customer").value = first.customer || "";
+  document.getElementById("location").value = first.location || "";
+  document.getElementById("ship_due").value = first.ship_week || "";
+
+  renderTruckRows(selectedRows);
+}
+
+function renderTruckRows(rows) {
+  const tbody = document.getElementById("truck-release-body");
+  tbody.innerHTML = "";
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="tr-empty">Select SO# to load truck release rows.</td></tr>`;
+    return;
+  }
+
+  let mbfTotal = 0;
+
+  rows.forEach(row => {
+    const mbf = Number(row.mbf || 0);
+    mbfTotal += mbf;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${formatNumber(mbf)}</td>
+      <td>${row.po_number || ""}</td>
+      <td>${row.car_number || ""}</td>
+      <td>${row.mill || ""}</td>
+      <td>${row.specie || ""}</td>
+      <td>${row.grade || ""}</td>
+      <td>${row.size || ""}</td>
+      <td>${row.length_value || ""}</td>
+      <td>${row.ppu || ""}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const totalRow = document.createElement("tr");
+  totalRow.className = "tr-subtotal-row";
+  totalRow.innerHTML = `<td>${formatNumber(mbfTotal)}</td><td colspan="8"></td>`;
+  tbody.appendChild(totalRow);
+}
+
+function clearTruckReleaseForm() {
+  ["cust_po_number","status","customer","location","ship_due","additional_email","rate"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  selectedRows = [];
+}
+
+function formatNumber(value) {
+  const num = Number(value || 0);
+  if (!num) return "";
+  return Number(num.toFixed(3));
+}
+
+function formatDateShort() {
+  return new Date().toLocaleDateString("en-US", { month:"short", day:"numeric" });
+}
+
+function getTemplateType() {
+  const inv = String(document.getElementById("status").value || "").toLowerCase();
+  if (inv.includes("matt")) return "matt";
+  if (inv.includes("quality")) return "quality";
+  return "open";
+}
+
+function getOriginData() {
+  const inv = document.getElementById("status").value;
+  const location = document.getElementById("location").value;
+
+  return originRows.find(r =>
+    String(r.inv || "").toLowerCase() === String(inv || "").toLowerCase() &&
+    String(r.origin || "").toLowerCase() === String(location || "").toLowerCase()
+  ) || {};
+}
+
+function getDestinationData() {
+  const customer = document.getElementById("customer").value;
+  return customerRows.find(r => String(r.destination || "") === String(customer || "")) || {};
+}
+
+function getCarrierData() {
+  const ref = document.getElementById("carrier_reference").value;
+  return carrierRows.find(r => String(r.reference || "") === String(ref || "")) || {};
+}
+
+function buildPdfTemplate() {
+  const type = getTemplateType();
+  const so = document.getElementById("so_number").value;
+  const custPO = document.getElementById("cust_po_number").value;
+  const inv = document.getElementById("status").value;
+  const location = document.getElementById("location").value;
+  const shipWeek = document.getElementById("ship_due").value;
+  const origin = getOriginData();
+  const dest = getDestinationData();
+  const carrier = getCarrierData();
+
+  const mbfTotal = selectedRows.reduce((s, r) => s + Number(r.mbf || 0), 0);
+
+  const poLabel =
+    type === "matt" ? "Matt’s PO#" :
+    type === "quality" ? "Quality PO#" :
+    `${inv || "Open"} PO#`;
+
+  const topPoClass = type === "quality" ? "pdf-blue-row" : "pdf-pink-row";
+
+  const rowsHtml = selectedRows.map(r => `
+    <tr>
+      <td>${formatNumber(r.mbf)}</td>
+      <td>${r.po_number || ""}</td>
+      <td>${r.car_number || ""}</td>
+      <td>${r.mill || ""}</td>
+      <td>${r.specie || ""}</td>
+      <td>${r.grade || ""}</td>
+      <td>${r.size || ""}</td>
+      <td>${r.length_value || ""}</td>
+      <td>${r.ppu || ""}</td>
+      <td></td>
+	  <td></td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="pdf-page">
+      <div class="pdf-main-title">${formatDateShort()} TRUCK RELEASE - SHIP WEEK: ${shipWeek || ""}</div>
+
+      <div class="pdf-top-grid">
+        <div class="pdf-box">
+          <div class="pdf-box-title">ORIGIN:</div>
+          <div class="pdf-box-body">
+            ${origin.title || ""}<br>
+            ${origin.address || ""}<br>
+            ${origin.city || ""} ${origin.state || ""} ${origin.zip || ""}<br><br>
+            ${origin.phone || ""}<br>
+            ${origin.hours || ""}<br>
+            ${origin.note1 || ""}<br>
+            ${origin.note2 || ""}<br>
+            ${origin.note3 || ""}
+          </div>
+        </div>
+
+        <div class="pdf-mid">
+          ${type !== "quality" ? `
+            <div class="pdf-green-row">
+              <div>LIGNUM SO #</div>
+              <div>${so}</div>
+            </div>
+          ` : ""}
+
+          ${type === "quality" ? `
+            <div class="pdf-blue-row">
+              <div>Quality PO#</div>
+              <div>${custPO}</div>
+            </div>
+          ` : ""}
+
+          <div class="pdf-carrier">
+            <div class="pdf-carrier-title">CARRIER:</div>
+            <div class="pdf-carrier-grid">
+              <div>${carrier.carrier || ""}</div>
+              <div>${carrier.person || ""}</div>
+              <div>${carrier.phone || ""}</div>
+              <div>${carrier.email_1_fixed || ""}</div>
+              <div>${carrier.email_2_fixed || ""}</div>
+            </div>
+          </div>
+
+          ${type === "quality" ? `
+            <div class="pdf-green-row">
+              <div>LIGNUM SO #</div>
+              <div>${so}</div>
+            </div>
+          ` : ""}
+
+          ${type !== "quality" ? `
+            <div class="${topPoClass}">
+              <div>${poLabel}</div>
+              <div>${custPO}</div>
+            </div>
+          ` : ""}
+        </div>
+
+        <div class="pdf-box">
+          <div class="pdf-box-title">DESTINATION:</div>
+          <div class="pdf-box-body">
+            ${dest.title || ""}<br>
+            ${dest.address || ""}<br>
+            ${dest.city || ""} ${dest.state || ""} ${dest.zip || ""}<br><br>
+            ${dest.phone || ""}<br>
+            ${dest.hours || ""}<br>
+            ${dest.note1 || ""}<br>
+            ${dest.note2 || ""}<br>
+            ${dest.note3 || ""}
+          </div>
+        </div>
+      </div>
+
+      ${buildPdfTallyBar(mbfTotal, location, inv)}
+
+      <table class="pdf-table">
+        <thead>
+          <tr>
+            <th>MBF</th>
+            <th>IB#</th>
+            <th>Car #</th>
+            <th>Mill</th>
+            <th>Specie</th>
+            <th>Grade</th>
+            <th>Size</th>
+            <th>L (')</th>
+            <th>ppu</th>
+            <th>${location}</th>
+            <th>${inv}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+          ${Array.from({ length: Math.max(0, 20 - selectedRows.length) }).map(() => `
+            <tr>
+              <td></td><td></td><td></td><td></td><td></td><td></td>
+              <td></td><td></td><td></td><td></td><td></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+
+      <div class="pdf-signatures">
+        <div>
+          LOADER SIGNED
+          <div class="pdf-line"></div>
+          LOADER DATED
+          <div class="pdf-line"></div>
+        </div>
+        <div>
+          RECEIVER SIGNED
+          <div class="pdf-line"></div>
+          RECEIVER DATED
+          <div class="pdf-line"></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildPdfTallyBar(mbfTotal, location, inv) {
+  const lengths = selectedRows
+    .map(row => Number(row.length_value))
+    .filter(len => !isNaN(len));
+
+  const studLengths = [92, 104, 116];
+  const dimensionLengths = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+
+  const studTally = studLengths
+    .map(len => {
+      const count = lengths.filter(v => v === len).length;
+      return count > 0 ? `${count}/${len}` : "";
+    })
+    .filter(Boolean)
+    .join("-");
+
+  const dimensionTally = dimensionLengths
+    .map(len => lengths.filter(v => v === len).length)
+    .filter(count => count > 0)
+    .join("-");
+
+  return `
+    <div class="pdf-info-bar">
+      <div>${formatNumber(mbfTotal)}</div>
+      <div></div>
+      <div>${studTally}</div>
+      <div></div>
+      <div>${dimensionTally}</div>
+      <div></div>
+      <div>${selectedRows.length}</div>
+      <div>UNIT TALLY</div>
+      <div>CONFIRM TALLY</div>
+      <div></div>
+      <div></div>
+    </div>
+  `;
+}
+
+async function generateTruckReleasePDF() {
+  try {
+    if (!document.getElementById("so_number").value || !selectedRows.length) {
+      showAppModal({
+        type: "error",
+        title: "Missing Data",
+        message: "Please select SO# first."
+      });
+      return;
+    }
+
+    const wrap = document.getElementById("pdf-template-wrap");
+    wrap.innerHTML = buildPdfTemplate();
+
+    const canvas = await html2canvas(wrap, {
+      scale: 2,
+      backgroundColor: "#ffffff"
+    });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("landscape", "pt", "a4");
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    pdf.addImage(
+      canvas.toDataURL("image/png"),
+      "PNG",
+      10,
+      10,
+      pageWidth - 20,
+      pageHeight - 20
+    );
+
+    const pdfBlob = pdf.output("blob");
+    const pdfBase64 = await blobToBase64(pdfBlob);
+
+    const so = document.getElementById("so_number").value;
+    const custPO = document.getElementById("cust_po_number").value;
+    const customer = document.getElementById("customer").value;
+    const inv = document.getElementById("status").value;
+    const date = formatDateShort();
+
+	  
+	const timestamp = Date.now();
+
+	const displayPdfName = `Lignum#${so} Truck Release ${date} ${customer} PO#${custPO}.pdf`;
+
+	const safeName = `Lignum-${so}-Truck-Release-${date}-${customer}-PO-${custPO}-${Date.now()}.pdf`
+	  .replace(/[\/\\:*?"<>|#]/g, "-")
+	  .replace(/\s+/g, "-");
+	  
+	  
+	  
+	  
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from("truck-release-pdfs")
+      .upload(safeName, pdfBlob, {
+        contentType: "application/pdf",
+        upsert: true
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicData } = supabaseClient.storage
+      .from("truck-release-pdfs")
+      .getPublicUrl(safeName);
+
+    const pdfUrl = publicData.publicUrl;
+
+    const subject = getTruckReleaseSubject(inv, so, custPO, customer);
+    const emails = await getTruckReleaseEmails();
+
+    await saveTruckReleaseLog();
+
+    await supabaseClient.from("truck_release_pdf_logs").insert([{
+      pdf_url: pdfUrl,
+      so_number: so,
+      cust_po_number: custPO,
+      customer,
+      inv,
+      carrier_reference: document.getElementById("carrier_reference").value,
+      email_recipients: emails.join(", "),
+      email_subject: subject,
+      pdf_name: displayPdfName
+    }]);
+
+    window.open(pdfUrl, "_blank");
+
+    const isLocalFile = window.location.protocol === "file:";
+
+    if (isLocalFile) {
+      showAppModal({
+        type: "success",
+        title: "PDF Generated",
+        message: "PDF was generated and logged. Email sending is skipped on local file testing. Test email after Vercel deploy."
+      });
+	  resetTruckReleaseFormAfterPDF();
+      return;
+    }
+
+    try {
+	  const { data: emailData, error: emailError } = await supabaseClient.functions.invoke("send-truck-release-email", {
+  body: {
+    toRecipients: emails.map(email => ({ address: email })),
+    subject,
+    body: `Please find the Truck Release PDF attached.<br><br>Rate: ${document.getElementById("rate").value || ""}`,
+    attachmentName: displayPdfName,
+    attachmentData: pdfBase64
+  }
+});
+
+if (emailError) {
+  throw emailError;
+}
+
+if (!emailData?.success) {
+  throw new Error("Email sending failed");
+}
+	
+	
+	
+
+      showAppModal({
+        type: "success",
+        title: "PDF Generated & Sent",
+        message: "Truck Release PDF was generated, logged, and emailed."
+      });
+	  resetTruckReleaseFormAfterPDF();
+
+    } catch (emailError) {
+      console.error("Email error:", emailError);
+
+      showAppModal({
+        type: "success",
+        title: "PDF Generated",
+        message: "PDF was generated and logged, but email failed. Check Vercel Gmail environment variables after deployment."
+      });
+    }
+
+  } catch (error) {
+    console.error("Truck release PDF error:", error);
+
+    showAppModal({
+      type: "error",
+      title: "PDF Failed",
+      message: error.message || "Could not generate PDF."
+    });
+  }
+}
+
+async function saveTruckReleaseLog() {
+  const header = {
+    so_number: document.getElementById("so_number").value,
+    cust_po_number: document.getElementById("cust_po_number").value,
+    status: document.getElementById("status").value,
+    customer: document.getElementById("customer").value,
+    carrier_reference: document.getElementById("carrier_reference").value,
+    location: document.getElementById("location").value,
+    additional_email: document.getElementById("additional_email").value,
+    rate: Number(document.getElementById("rate").value || 0),
+    ship_due: document.getElementById("ship_due").value
+  };
+
+  const logRows = selectedRows.map(row => ({
+    ...header,
+    mbf: Number(row.mbf || 0),
+    ib_number: row.po_number || "",
+    car_number: row.car_number || "",
+    mill: row.mill || "",
+    specie: row.specie || "",
+    grade: row.grade || "",
+    size: row.size || "",
+    length_value: Number(row.length_value || 0),
+    pack_size: Number(row.ppu || 0)
+  }));
+
+  await supabaseClient.from("truck_release_logs").insert(logRows);
+}
+
+function getTruckReleaseSubject(inv, so, custPO, customer) {
+  const type = String(inv || "").toLowerCase();
+  if (type.includes("matt")) return `Lignum#${so} Truck Release BoL Matt's PO#${custPO}`;
+  if (type.includes("quality")) return `Quality PO#${custPO} Truck Release BoL Lignum #${so}`;
+  return `Lignum#${so} Truck Release BoL ${customer} PO#${custPO}`;
+}
+
+async function getTruckReleaseEmails() {
+  const emails = [];
+  const customer = document.getElementById("customer").value;
+  const carrierRef = document.getElementById("carrier_reference").value;
+  const extraEmail = document.getElementById("additional_email").value;
+
+  if (extraEmail) emails.push(extraEmail);
+
+  const cust = customerRows.find(r => String(r.destination || "") === String(customer || ""));
+  if (cust) ["email_1","email_2","email_3","email_4"].forEach(k => cust[k] && emails.push(cust[k]));
+
+  const carrier = carrierRows.find(r => String(r.reference || "") === String(carrierRef || ""));
+  if (carrier) {
+    if (carrier.email_1_fixed) emails.push(carrier.email_1_fixed);
+    if (carrier.email_2_fixed) emails.push(carrier.email_2_fixed);
+  }
+
+  return [...new Set(emails.join(",").split(/[;, ]+/).map(e => e.trim().toLowerCase()).filter(e => e.includes("@")))];
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+
+function resetTruckReleaseFormAfterPDF() {
+  document.getElementById("so_number").value = "";
+  document.getElementById("carrier_reference").value = "";
+  document.getElementById("additional_email").value = "";
+  document.getElementById("rate").value = "";
+
+  clearTruckReleaseForm();
+  renderTruckRows([]);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reload Logs</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪵</text></svg>">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-row">
+        <div class="page-hero" style="margin-bottom:0;">
+          <h1>Reload Logs</h1>
+          <p>View generated Reload PDF links.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary" onclick="loadReloadLogs()">Refresh</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="card-pad">
+          <div class="card-title-row">
+            <div class="icon">🔄</div>
+            <div class="card-title">Reload PDF Logs</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table" style="min-width:700px;">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>PDF URL</th>
+				<th>Action By</th>
+              </tr>
+            </thead>
+            <tbody id="reload-logs-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  loadSidebar("reload-logs");
+  loadReloadLogs();
+});
+
+async function loadReloadLogs() {
+  const { data, error } = await supabaseClient
+    .from("reload_pdf_logs")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const tbody = document.getElementById("reload-logs-body");
+  tbody.innerHTML = "";
+
+  (data || []).forEach(row => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${new Date(row.created_at).toLocaleString()}</td>
+      <td>${row.pdf_url ? `<a href="${row.pdf_url}" target="_blank">Open PDF</a>` : ""}</td>
+	  <td>${row.created_by_name || row.created_by_email || ""}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>
