@@ -8,43 +8,43 @@ function getSidebar(activeKey = "") {
 
       <div class="sidebar-nav">
         <a href="dashboard.html" class="sidebar-link ${activeKey === "dashboard" ? "active" : ""}">
-          <span class="sidebar-left"><span>📊</span><span>Dashboard</span></span>
+          <span class="sidebar-left"><span></span><span>Dashboard</span></span>
         </a>
 
         <a href="inventory.html" class="sidebar-link ${activeKey === "inventory" ? "active" : ""}">
-          <span class="sidebar-left"><span>📦</span><span>Inventory</span></span>
+          <span class="sidebar-left"><span></span><span>Inventory</span></span>
         </a>
 
         <a href="new-po.html" class="sidebar-link ${activeKey === "new-po" ? "active" : ""}">
-          <span class="sidebar-left"><span>🛒</span><span>New Purchase Order</span></span>
+          <span class="sidebar-left"><span></span><span>New Purchase Order</span></span>
         </a>
 		
 		<a href="reload.html" class="sidebar-link ${activeKey === "reload" ? "active" : ""}">
-		  <span class="sidebar-left"><span>🔄</span><span>Reload</span></span>
+		  <span class="sidebar-left"><span></span><span>Reload</span></span>
 		</a>
 		
 		<a href="truck-release.html" class="sidebar-link ${activeKey === "truck-release" ? "active" : ""}">
-		  <span class="sidebar-left"><span>🚚</span><span>Truck Release</span></span>
+		  <span class="sidebar-left"><span></span><span>Truck Release</span></span>
 		</a>
 
         <a href="matts.html" class="sidebar-link ${activeKey === "matts" ? "active" : ""}">
-          <span class="sidebar-left"><span>🏭</span><span>Matt’s Inventory</span></span>
+          <span class="sidebar-left"><span></span><span>Matt’s Inventory</span></span>
         </a>
 		
 		<a href="quality.html" class="sidebar-link ${activeKey === "quality" ? "active" : ""}">
-		  <span class="sidebar-left"><span>✅</span><span>Quality Inventory</span></span>
+		  <span class="sidebar-left"><span></span><span>Quality Inventory</span></span>
 		</a>
 		
 		<a href="quotation.html" class="sidebar-link ${activeKey === "quotation" ? "active" : ""}">
-		  <span class="sidebar-left"><span>🧾</span><span>Quotation</span></span>
+		  <span class="sidebar-left"><span></span><span>Quotation</span></span>
 		</a>
 		
 		<a href="active-orders.html" class="sidebar-link ${activeKey === "active-orders" ? "active" : ""}">
-		  <span class="sidebar-left"><span>📋</span><span>Active Orders</span></span>
+		  <span class="sidebar-left"><span></span><span>Active Orders</span></span>
 		</a>
 
         <button class="sidebar-group-button" onclick="toggleSidebarGroup('logs-submenu')" type="button">
-          <span class="sidebar-left"><span>🕘</span><span>Logs</span></span>
+          <span class="sidebar-left"><span></span><span>Logs</span></span>
           <span>▾</span>
         </button>
         <div class="sidebar-submenu" id="logs-submenu">
@@ -56,7 +56,7 @@ function getSidebar(activeKey = "") {
         </div>
 
         <button class="sidebar-group-button" onclick="toggleSidebarGroup('config-submenu')" type="button">
-          <span class="sidebar-left"><span>⚙️</span><span>Configuration</span></span>
+          <span class="sidebar-left"><span></span><span>Configuration</span></span>
           <span>▾</span>
         </button>
 		
@@ -68,7 +68,7 @@ function getSidebar(activeKey = "") {
 		</div>
 		
 		<a href="users.html" class="sidebar-link ${activeKey === "users" ? "active" : ""}">
-          <span class="sidebar-left"><span>👨🏻‍💼</span><span>Users</span></span>
+          <span class="sidebar-left"><span></span><span>Users</span></span>
         </a>
 
 		
