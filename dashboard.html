@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+
+  <style>
+    .dashboard-section {
+      margin-top: 32px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 32px;
+    }
+
+    .bar-item {
+      margin-bottom: 16px;
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 7px;
+    }
+
+    .bar-head span:first-child {
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    .bar-head .bar-value {
+      font-weight: 400;
+      flex: 0 0 auto;
+    }
+
+    .bar-track {
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #156082;
+      border-radius: 20px;
+    }
+
+    /* ===== Dashboard Table / Chart Cards UI ===== */
+
+    .dashboard-table-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 22px;
+      border: 1px solid #dbe4ee;
+      box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      margin-bottom: 0;
+      padding: 28px;
+    }
+
+    .dashboard-table-card .card-pad {
+      padding: 0;
+      margin-bottom: 0;
+    }
+
+    .dashboard-table-card .card-title-row {
+      margin-bottom: 24px;
+    }
+
+    .dashboard-table-card .card-title-row .icon {
+      display: none;
+    }
+
+    .dashboard-table-card .card-title {
+      width: 100%;
+      display: block;
+      background: linear-gradient(135deg, #156082 0%, #0f4a63 100%);
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 14px 18px;
+      box-shadow: 0 10px 22px rgba(21, 96, 130, 0.16);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 18px;
+      font-weight: 900;
+      text-align: left;
+      box-sizing: border-box;
+    }
+
+    .dashboard-table-card .table-wrap,
+    .dashboard-table-card .grade-table-wrap {
+      width: 100%;
+      padding: 0 !important;
+      margin: 0;
+      overflow-x: auto !important;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      box-sizing: border-box;
+      border-radius: 14px;
+    }
+
+    .dashboard-table-card .table {
+      width: 100% !important;
+      min-width: 680px !important;
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+      background: #ffffff;
+      font-size: 13px;
+      overflow: hidden;
+      border-radius: 14px;
+      table-layout: auto !important;
+      border: 1px solid #dbe4ee;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .dashboard-table-card .table thead tr {
+      background: #eef2f5 !important;
+    }
+
+    .dashboard-table-card .table th {
+      background: #eef2f5 !important;
+      color: #475569 !important;
+      padding: 12px 14px !important;
+      text-align: left !important;
+      font-size: 10px !important;
+      font-weight: 900 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.12em !important;
+      border: 0 !important;
+      white-space: nowrap !important;
+    }
+
+    .dashboard-table-card .table td {
+      padding: 11px 14px !important;
+      border: 0 !important;
+      border-bottom: 1px solid #e5e7eb !important;
+      color: #0f172a !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      background: #ffffff;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .dashboard-table-card .table tbody tr:nth-child(even) td {
+      background: #f8fafc !important;
+    }
+
+    .dashboard-table-card .table tbody tr:hover td {
+      background: #f1f5f9 !important;
+    }
+
+    .dashboard-table-card .table tbody tr:last-child td {
+      border-bottom: 0 !important;
+    }
+
+    .dashboard-table-card .table th:last-child,
+    .dashboard-table-card .table td:last-child {
+      min-width: 140px;
+      text-align: right !important;
+    }
+
+    .mini-table td {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .grade-table {
+      width: 100% !important;
+      min-width: 620px !important;
+      table-layout: auto !important;
+    }
+
+    .grade-table th,
+    .grade-table td {
+      white-space: nowrap !important;
+    }
+
+    .grade-table th:nth-child(1),
+    .grade-table td:nth-child(1) {
+      min-width: 220px;
+    }
+
+    .grade-table th:nth-child(2),
+    .grade-table td:nth-child(2) {
+      min-width: 120px;
+    }
+
+    .grade-table th:nth-child(3),
+    .grade-table td:nth-child(3) {
+      min-width: 150px;
+      text-align: right !important;
+    }
+
+    @media(max-width: 1000px) {
+      .chart-row {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .dashboard-section {
+        margin-top: 32px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .dashboard-table-card {
+        padding: 20px !important;
+        margin-bottom: 28px;
+      }
+
+      .chart-row {
+        gap: 30px;
+        margin-top: 28px;
+      }
+
+      .dashboard-table-card .card-title-row {
+        margin-bottom: 24px;
+      }
+
+      .dashboard-table-card .card-title {
+        font-size: 16px;
+        padding: 13px 16px;
+      }
+
+      .dashboard-table-card .table {
+        width: max-content !important;
+        min-width: 620px !important;
+      }
+
+      .dashboard-table-card .grade-table-wrap::after {
+        content: "Scroll sideways to view full table →";
+        display: block;
+        margin-top: 10px;
+        font-size: 12px;
+        font-weight: 800;
+        color: #64748b;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-hero">
+        <h1>Dashboard</h1>
+        <p>Lignum operations overview: inventory, stock movement, purchase logs, releases, and quotations.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-label">Total Inventory Rows</div>
+          <div class="stat-value" id="inventory-count">--</div>
+          <div class="stat-note">All lumber inventory records</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Total MBF</div>
+          <div class="stat-value" id="total-mbf">--</div>
+          <div class="stat-note">Available board footage</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Open Stock</div>
+          <div class="stat-value" id="open-stock">--</div>
+          <div class="stat-note">Rows without SO#</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Sold / Assigned</div>
+          <div class="stat-value" id="sold-stock">--</div>
+          <div class="stat-note">Rows with SO#</div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Locations</div>
+          <div class="stat-value" id="location-count">--</div>
+          <div class="stat-note">Unique stock locations</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Species</div>
+          <div class="stat-value" id="species-count">--</div>
+          <div class="stat-note">Unique lumber species</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Purchase Logs</div>
+          <div class="stat-value" id="purchase-count">--</div>
+          <div class="stat-note">Confirmed PO logs</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Truck Releases</div>
+          <div class="stat-value" id="truck-count">--</div>
+          <div class="stat-note">Generated release rows</div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <section class="card dashboard-table-card">
+          <div class="card-pad">
+            <div class="card-title-row">
+              <div class="card-title">Inventory by Location</div>
+            </div>
+            <div id="location-chart"></div>
+          </div>
+        </section>
+
+        <section class="card dashboard-table-card">
+          <div class="card-pad">
+            <div class="card-title-row">
+              <div class="card-title">Inventory by Species</div>
+            </div>
+            <div id="species-chart"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card dashboard-section dashboard-table-card">
+        <div class="card-pad">
+          <div class="card-title-row">
+            <div class="card-title">Top Grades by MBF</div>
+          </div>
+
+          <div class="grade-table-wrap">
+            <table class="table mini-table grade-table">
+              <thead>
+                <tr>
+                  <th>Grade</th>
+                  <th>Rows</th>
+                  <th>Total MBF</th>
+                </tr>
+              </thead>
+              <tbody id="grade-summary-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  await requireLogin();
+  loadSidebar("dashboard");
+  loadDashboardStats();
+});
+
+function numberFormat(value) {
+  return Number(value || 0).toLocaleString(undefined, {
+    maximumFractionDigits: 2
+  });
+}
+
+function groupRows(rows, field, sumField = null) {
+  const map = {};
+
+  rows.forEach(row => {
+    const key = row[field] || "Blank";
+
+    if (!map[key]) {
+      map[key] = {
+        label: key,
+        count: 0,
+        total: 0
+      };
+    }
+
+    map[key].count += 1;
+
+    if (sumField) {
+      map[key].total += Number(row[sumField] || 0);
+    }
+  });
+
+  return Object.values(map).sort((a, b) => {
+    if (sumField) return b.total - a.total;
+    return b.count - a.count;
+  });
+}
+
+function renderBarChart(elementId, rows, valueField) {
+  const container = document.getElementById(elementId);
+  container.innerHTML = "";
+
+  if (!rows.length) {
+    container.innerHTML = `<div class="empty-row">No data found.</div>`;
+    return;
+  }
+
+  const max = Math.max(...rows.map(x => x[valueField] || 0));
+
+  rows.slice(0, 8).forEach(item => {
+    const value = item[valueField] || 0;
+    const percent = max ? (value / max) * 100 : 0;
+
+    container.innerHTML += `
+      <div class="bar-item">
+        <div class="bar-head">
+          <span>${item.label}</span>
+          <span class="bar-value">${numberFormat(value)}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${percent}%"></div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+async function setCount(table, elementId) {
+  const { count, error } = await supabaseClient
+    .from(table)
+    .select("*", { count: "exact", head: true });
+
+  document.getElementById(elementId).textContent = error ? "0" : numberFormat(count);
+}
+
+async function loadDashboardStats() {
+  const { data: inventory, error } = await supabaseClient
+    .from("inventory")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const rows = inventory || [];
+
+  const totalMBF = rows.reduce((sum, row) => sum + Number(row.mbf || 0), 0);
+  const soldRows = rows.filter(row => row.so_number && String(row.so_number).trim() !== "").length;
+  const openRows = rows.length - soldRows;
+
+  const locations = new Set(rows.map(x => x.location).filter(Boolean));
+  const species = new Set(rows.map(x => x.specie).filter(Boolean));
+
+  document.getElementById("inventory-count").textContent = numberFormat(rows.length);
+  document.getElementById("total-mbf").textContent = numberFormat(totalMBF);
+  document.getElementById("open-stock").textContent = numberFormat(openRows);
+  document.getElementById("sold-stock").textContent = numberFormat(soldRows);
+  document.getElementById("location-count").textContent = numberFormat(locations.size);
+  document.getElementById("species-count").textContent = numberFormat(species.size);
+
+  await setCount("new_purchase_logs", "purchase-count");
+  await setCount("truck_release_logs", "truck-count");
+
+  const byLocation = groupRows(rows, "location", "mbf");
+  const bySpecies = groupRows(rows, "specie", "mbf");
+  const byGrade = groupRows(rows, "grade", "mbf");
+
+  renderBarChart("location-chart", byLocation, "total");
+  renderBarChart("species-chart", bySpecies, "total");
+
+  const gradeBody = document.getElementById("grade-summary-body");
+  gradeBody.innerHTML = "";
+
+  byGrade.slice(0, 10).forEach(item => {
+    gradeBody.innerHTML += `
+      <tr>
+        <td>${item.label}</td>
+        <td>${numberFormat(item.count)}</td>
+        <td>${numberFormat(item.total)}</td>
+      </tr>
+    `;
+  });
+
+  if (!byGrade.length) {
+    gradeBody.innerHTML = `<tr><td colspan="3" class="empty-row">No grade data found.</td></tr>`;
+  }
+}
+</script>
+</body>
+</html>

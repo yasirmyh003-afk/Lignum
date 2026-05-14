@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quotation</title>
+  <link rel="stylesheet" href="global.css" />
+   <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+
+  <style>
+  .quotation-header-row {
+    align-items: center;
+    margin-bottom: 26px;
+  }
+
+  .quote-top-generate {
+    min-width: 180px;
+    height: 48px;
+  }
+
+  /* ===== Quotation Filters ===== */
+
+  .quotation-filter-card {
+    margin-bottom: 24px;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  }
+
+  .quotation-filter-card .card-pad {
+    padding: 22px 28px;
+  }
+
+  .quotation-filter-card .card-title-row {
+    margin-bottom: 16px;
+  }
+
+  .quotation-filter-card .form-grid.cols-4 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(220px, 260px));
+    justify-content: start;
+    align-items: end;
+    gap: 20px;
+  }
+
+  /* ===== Main Quotation Paper ===== */
+
+  .quote-paper {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 22px;
+    padding: 30px;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
+  }
+
+  .quote-title {
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto 28px;
+    background: linear-gradient(135deg, #156082 0%, #0f4a63 100%);
+    color: #ffffff;
+    text-align: center;
+    padding: 15px 18px;
+    font-size: 24px;
+    font-weight: 900;
+    border-radius: 14px;
+    letter-spacing: 0.08em;
+    box-shadow: 0 10px 22px rgba(21, 96, 130, 0.18);
+    box-sizing: border-box;
+  }
+
+  .quote-info {
+    margin: 0 auto 28px;
+    max-width: 980px;
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr 0.9fr;
+    gap: 14px;
+  }
+
+  .quote-info-field {
+    background: #ffffff;
+    border: 1px solid #dbe4ee;
+    border-radius: 14px;
+    padding: 10px 12px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  }
+
+  .quote-info-field label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: #156082;
+    text-transform: uppercase;
+  }
+
+  .quote-info-field input {
+    width: 100%;
+    border: 0;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 14px;
+    color: #0f172a;
+    outline: none;
+  }
+
+  .quote-info-field input:focus {
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(21, 96, 130, 0.16);
+  }
+
+  .quote-black {
+    height: 3px;
+    max-width: 1250px;
+    background: linear-gradient(90deg, transparent, #156082, transparent);
+    margin: 24px auto 28px;
+  }
+
+  .quote-tables {
+    max-width: 1250px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .quote-mini-table {
+    width: 100%;
+    min-width: 0;
+    max-width: 1250px;
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    font-size: 13px;
+    overflow: hidden;
+    border-radius: 14px;
+    table-layout: fixed;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  }
+
+  .quote-mini-table th {
+    background: #eef2f5 !important;
+    color: #475569 !important;
+    padding: 12px 14px !important;
+    text-align: left !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .quote-mini-table td {
+    padding: 11px 14px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    color: #0f172a !important;
+    font-size: 13px !important;
+    font-weight: 300 !important;
+    background: #ffffff;
+    text-align: center;
+  }
+
+  .quote-mini-table tbody tr:nth-child(even) td {
+    background: #f8fafc !important;
+  }
+
+  .quote-mini-table input {
+    width: 100%;
+    max-width: 120px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    padding: 7px;
+    outline: none;
+    text-align: center;
+    background: #f8fafc;
+  }
+
+  .quote-empty {
+    text-align: center;
+    padding: 18px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 800;
+    background: #f8fafc;
+  }
+
+  /* ===== Responsive ===== */
+
+  @media(max-width: 1200px) {
+    .quotation-filter-card .form-grid.cols-4 {
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+    }
+  }
+
+  @media(max-width: 900px) {
+    .quote-info {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media(max-width: 800px) {
+    .quotation-header-row {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .quote-top-generate {
+      width: 100%;
+    }
+
+    .quotation-filter-card .form-grid.cols-4 {
+      grid-template-columns: 1fr;
+    }
+
+    .quote-paper {
+      padding: 20px;
+    }
+
+    .quote-mini-table {
+      min-width: 800px;
+    }
+
+    .quote-tables {
+      overflow-x: auto;
+    }
+  }
+</style>
+  
+</head>
+
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+ 
+ <div class="page-row quotation-header-row">
+  <div class="page-hero" style="margin-bottom:0;">
+    <h1>Quotation Summary</h1>
+    <p>Generate quotation summary from available inventory.</p>
+  </div>
+
+  <div class="page-actions">
+    <button class="btn btn-primary quote-top-generate" onclick="generateQuotationPDF()">
+      Generate PDF
+    </button>
+  </div>
+</div>
+
+<section class="card quotation-filter-card">
+  <div class="card-pad">
+
+
+    <div class="form-grid cols-4">
+      <div class="form-group">
+        <label>Location</label>
+        <select id="filter_location" onchange="renderQuotation()">
+          <option value="">All</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Grade</label>
+        <select id="filter_grade" onchange="renderQuotation()">
+          <option value="">All</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>INV</label>
+        <select id="filter_inv" onchange="renderQuotation()">
+          <option value="">All</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</section>
+
+      <section class="quote-paper" id="quotation-pdf-area">
+        <div class="quote-title">Quotation Summary</div>
+
+<div class="quote-info">
+  <div class="quote-info-field">
+    <label>Customer Name</label>
+    <input id="customer_name" placeholder="Enter customer name" />
+  </div>
+
+  <div class="quote-info-field">
+    <label>Email</label>
+    <input id="customer_email" placeholder="Enter email address" />
+  </div>
+
+  <div class="quote-info-field">
+    <label>Contact Number</label>
+    <input id="customer_phone" placeholder="Enter contact number" />
+  </div>
+</div>
+
+        <div class="quote-black"></div>
+
+        <div class="quote-tables">
+          <div>
+            <table class="quote-mini-table">
+              <thead>
+                <tr>
+                  <th>STUD</th>
+                  <th>LENGTH</th>
+                  <th>TOTAL MBF</th>
+                  <th>TOTAL UNITS</th>
+                  <th>TOTAL TL</th>
+                  <th>TOTAL PRICE</th>
+                </tr>
+				
+				
+				
+				
+              </thead>
+              <tbody id="stud-body"></tbody>
+            </table>
+          </div>
+
+          <div>
+            <table class="quote-mini-table">
+              <thead>
+                <tr>
+                  <th>DIMENSION</th>
+                  <th>LENGTH</th>
+                  <th>TOTAL MBF</th>
+                  <th>TOTAL UNITS</th>
+                  <th>TOTAL TL</th>
+                  <th>TOTAL PRICE</th>
+                </tr>
+              </thead>
+              <tbody id="dimension-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+let quoteRows = [];
+
+document.addEventListener("DOMContentLoaded", async function () {
+  loadSidebar("quotation");
+  await loadQuotationData();
+});
+
+function isBlank(value) {
+  return value === null || value === undefined || String(value).trim() === "";
+}
+
+async function loadQuotationData() {
+  try {
+    const { data, error } = await supabaseClient
+      .from("inventory")
+      .select("*");
+
+    if (error) throw error;
+
+    quoteRows = (data || []).filter(row => {
+      return isBlank(row.cust_po_number) && isBlank(row.sales_price);
+    });
+
+    fillQuoteFilters();
+    renderQuotation();
+  } catch (error) {
+    console.error("Quotation load error:", error);
+    showAppModal({
+      type: "error",
+      title: "Load Failed",
+      message: "Could not load quotation data."
+    });
+  }
+}
+
+function fillQuoteFilters() {
+  fillFilter("filter_location", "location");
+  fillFilter("filter_grade", "grade");
+  fillFilter("filter_inv", "inv");
+}
+
+function fillFilter(selectId, field) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  select.innerHTML = `<option value="">All</option>`;
+
+  const values = [...new Set(
+    quoteRows
+      .map(row => row[field])
+      .filter(value => !isBlank(value))
+      .map(value => String(value))
+  )].sort();
+
+  values.forEach(value => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+function getFilteredQuoteRows() {
+  const location = document.getElementById("filter_location").value;
+  const grade = document.getElementById("filter_grade").value;
+  const inv = document.getElementById("filter_inv").value;
+
+  return quoteRows.filter(row => {
+    if (location && String(row.location) !== location) return false;
+    if (grade && String(row.grade) !== grade) return false;
+    if (inv && String(row.inv) !== inv) return false;
+    return true;
+  });
+}
+
+function groupRows(rows, studOnly) {
+  const studLengths = [92, 104, 116];
+  const map = {};
+
+  rows.forEach(row => {
+    const length = Number(row.length_value);
+    const isStud = studLengths.includes(length);
+
+    if (studOnly && !isStud) return;
+    if (!studOnly && isStud) return;
+
+    const size = row.size || "";
+    const key = `${size}|${length}`;
+
+    if (!map[key]) {
+      map[key] = {
+        size,
+        length,
+        mbf: 0,
+        units: 0
+      };
+    }
+
+    map[key].mbf += Number(row.mbf || 0);
+    map[key].units += 1;
+  });
+
+  return Object.values(map).sort((a, b) => {
+    if (a.size === b.size) return a.length - b.length;
+    return String(a.size).localeCompare(String(b.size));
+  });
+}
+
+function renderQuotation() {
+  const rows = getFilteredQuoteRows();
+
+  renderQuoteTable("stud-body", groupRows(rows, true), "STUD");
+  renderQuoteTable("dimension-body", groupRows(rows, false), "DIMENSION");
+}
+
+function renderQuoteTable(tbodyId, rows, groupLabel) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  if (rows.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="quote-empty">No available inventory found.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  let lastSize = "";
+
+  rows.forEach(row => {
+    const tr = document.createElement("tr");
+    const tl = row.mbf / 27;
+
+    tr.innerHTML = `
+      <td>${row.size !== lastSize ? row.size : ""}</td>
+      <td>${row.length}</td>
+      <td>${row.mbf.toFixed(2)}</td>
+      <td>${row.units}</td>
+      <td>${tl.toFixed(1)}</td>
+      <td><input type="number" step="0.01" /></td>
+    `;
+
+    tbody.appendChild(tr);
+    lastSize = row.size;
+  });
+}
+
+
+async function generateQuotationPDF() {
+  try {
+    const area = document.getElementById("quotation-pdf-area");
+
+    const canvas = await html2canvas(area, {
+      scale: 2,
+      backgroundColor: "#f3f3f3"
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF("portrait", "pt", "a4");
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pageWidth - 40;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let y = 20;
+
+    if (imgHeight <= pageHeight - 40) {
+      pdf.addImage(imgData, "PNG", 20, y, imgWidth, imgHeight);
+    } else {
+      let remainingHeight = imgHeight;
+      let sourceY = 0;
+      const pageCanvasHeight = canvas.width * (pageHeight - 40) / imgWidth;
+
+      while (remainingHeight > 0) {
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = Math.min(pageCanvasHeight, canvas.height - sourceY);
+
+        const ctx = pageCanvas.getContext("2d");
+        ctx.drawImage(
+          canvas,
+          0,
+          sourceY,
+          canvas.width,
+          pageCanvas.height,
+          0,
+          0,
+          canvas.width,
+          pageCanvas.height
+        );
+
+        const pageImgData = pageCanvas.toDataURL("image/png");
+        const pageImgHeight = (pageCanvas.height * imgWidth) / canvas.width;
+
+        pdf.addImage(pageImgData, "PNG", 20, 20, imgWidth, pageImgHeight);
+
+        remainingHeight -= pageHeight - 40;
+        sourceY += pageCanvasHeight;
+
+        if (remainingHeight > 0) pdf.addPage();
+      }
+    }
+
+    const pdfBlob = pdf.output("blob");
+    const fileName = `quotation_${Date.now()}.pdf`;
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from("quotation-pdfs")
+      .upload(fileName, pdfBlob, {
+        contentType: "application/pdf",
+        upsert: true
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicData } = supabaseClient.storage
+      .from("quotation-pdfs")
+      .getPublicUrl(fileName);
+
+    const pdfUrl = publicData.publicUrl;
+
+    const { error: logError } = await supabaseClient
+      .from("quotation_logs")
+      .insert([{ pdf_url: pdfUrl }]);
+
+    if (logError) throw logError;
+
+    window.open(pdfUrl, "_blank");
+
+    showAppModal({
+      type: "success",
+      title: "PDF Generated",
+      message: "Quotation PDF was created and saved to quotation logs."
+    });
+	resetQuotationForm();
+  } catch (error) {
+    console.error("PDF generation error:", error);
+    showAppModal({
+      type: "error",
+      title: "PDF Failed",
+      message: error.message || "Could not generate quotation PDF."
+    });
+  }
+}
+
+
+function resetQuotationForm() {
+  document.getElementById("filter_location").value = "";
+  document.getElementById("filter_grade").value = "";
+  document.getElementById("filter_inv").value = "";
+
+  document.getElementById("customer_name").value = "";
+  document.getElementById("customer_email").value = "";
+  document.getElementById("customer_phone").value = "";
+
+  document.querySelectorAll(".quote-mini-table input").forEach(input => {
+    input.value = "";
+  });
+
+  renderQuotation();
+}
+
+
+</script>
+</body>
+</html>

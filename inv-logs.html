@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>INV Logs</title>
+  <link rel="stylesheet" href="global.css" />
+      <link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+<style>
+  .page-row {
+    align-items: center;
+    margin-bottom: 26px;
+  }
+
+  .page-frame > section.card {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 22px;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+    margin-bottom: 24px;
+    padding: 28px;
+  }
+
+  .page-frame > section.card .card-pad {
+    padding: 0;
+    margin-bottom: 18px;
+  }
+
+  .page-frame > section.card .card-title-row {
+    margin-bottom: 0;
+  }
+
+  .page-frame > section.card .card-title-row .icon {
+    display: none;
+  }
+
+  .page-frame > section.card .card-title {
+    width: 100%;
+    display: block;
+    background: linear-gradient(135deg, #156082 0%, #0f4a63 100%);
+    color: #ffffff;
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 22px rgba(21, 96, 130, 0.16);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 900;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  .table-wrap {
+    width: 100%;
+    padding: 0 !important;
+    margin: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-sizing: border-box;
+    border-radius: 14px;
+  }
+
+  .table {
+    width: 100% !important;
+    min-width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #ffffff;
+    font-size: 13px;
+    overflow: hidden;
+    border-radius: 14px;
+    table-layout: auto;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  }
+
+  .table thead tr {
+    background: #eef2f5 !important;
+  }
+
+  .table th {
+    background: #eef2f5 !important;
+    color: #475569 !important;
+    padding: 12px 14px !important;
+    text-align: left !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .table td {
+    padding: 11px 14px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    color: #0f172a !important;
+    font-size: 13px !important;
+    font-weight: 300 !important;
+    background: #ffffff;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .table tbody tr:nth-child(even) td {
+    background: #f8fafc !important;
+  }
+
+  .table tbody tr:hover td {
+    background: #f1f5f9 !important;
+  }
+
+  .table tbody tr:last-child td {
+    border-bottom: 0 !important;
+  }
+
+  .table a {
+    color: #156082 !important;
+    font-weight: 900;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .table a:hover {
+    color: #0f4a63 !important;
+  }
+
+  /* PDF Generation Logs table */
+  .page-frame > section.card:first-of-type .table {
+    table-layout: fixed !important;
+  }
+
+  .page-frame > section.card:first-of-type .table th:first-child,
+  .page-frame > section.card:first-of-type .table td:first-child {
+    width: 220px;
+  }
+
+  .page-frame > section.card:first-of-type .table th:last-child,
+  .page-frame > section.card:first-of-type .table td:last-child {
+    width: auto;
+  }
+
+  /* History tables can scroll inside same-width container */
+  .page-frame > section.card:not(:first-of-type) .table {
+    width: max-content !important;
+    min-width: 100% !important;
+  }
+
+  .page-frame > section.card:not(:first-of-type) .table th,
+  .page-frame > section.card:not(:first-of-type) .table td {
+    min-width: 120px;
+  }
+
+  .empty-row {
+    padding: 24px !important;
+    text-align: center !important;
+    color: #64748b !important;
+    background: #f8fafc !important;
+    font-weight: 800 !important;
+  }
+
+  @media(max-width: 900px) {
+    .page-row {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .page-actions,
+    .page-actions .btn {
+      width: 100%;
+    }
+
+    .page-frame > section.card {
+      padding: 20px;
+    }
+
+    .page-frame > section.card .card-title {
+      font-size: 16px;
+      padding: 13px 16px;
+    }
+  }
+</style>
+
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-row">
+        <div class="page-hero" style="margin-bottom:0;">
+          <h1>INV Logs</h1>
+          <p>Inventory upload history and PDF generation logs.</p>
+        </div>
+
+        <div class="page-actions">
+          <button class="btn btn-secondary" onclick="loadInvLogs()">Refresh</button>
+        </div>
+      </div>
+
+      <section class="card" style="margin-bottom:24px;">
+        <div class="card-pad">
+          <div class="card-title-row">
+            <div class="icon">📄</div>
+            <div class="card-title">PDF Generation Logs</div>
+          </div>
+        </div>
+
+		<div style="overflow-x:hidden;">
+		  <table class="table" style="width:100%; min-width:0; table-layout:fixed;">
+            <thead>
+              <tr>
+			    <th style="width:240px;">Timestamp</th>
+                <th>PDF URL</th>
+              </tr>
+            </thead>
+            <tbody id="pdf-logs-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" style="margin-bottom:24px;">
+        <div class="card-pad">
+          <div class="card-title-row">
+            <div class="icon">✅</div>
+            <div class="card-title">History - Quality</div>
+          </div>
+        </div>
+		
+
+
+        <div class="table-wrap">
+          <table class="table" style="min-width:900px;">
+            <thead>
+              <tr>
+                <th>Inventory Date</th>
+                <th>Imported At</th>
+                <th>Item</th>
+                <th>Available</th>
+                <th>On Order</th>
+                <th>Have Not Recd</th>
+                <th>Uploaded By</th>
+              </tr>
+            </thead>
+            <tbody id="quality-history-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+
+<section class="card">
+  <div class="card-pad">
+    <div class="card-title-row">
+      <div class="icon">🏬</div>
+      <div class="card-title">History - Matt's</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table" style="min-width:1500px;">
+      <thead>
+        <tr>
+          <th>Inventory Date</th>
+          <th>Imported At</th>
+          <th>Item</th>
+          <th>On Hand Pharr</th>
+          <th>On Order Pharr</th>
+          <th>On Hand Harlingen</th>
+          <th>On Order Harlingen</th>
+          <th>On Hand Palmview</th>
+          <th>On Order Palmview</th>
+          <th>On Hand San Benito</th>
+          <th>On Order San Benito</th>
+          <th>Uploaded By</th>
+        </tr>
+      </thead>
+      <tbody id="matts-history-body"></tbody>
+    </table>
+  </div>
+</section>
+
+
+
+    </div>
+  </main>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+  await requireLogin();
+  loadSidebar("inv-logs");
+  loadInvLogs();
+});
+
+function fmtDate(value) {
+  if (!value) return "";
+  return new Date(value).toLocaleDateString();
+}
+
+function fmtDateTime(value) {
+  if (!value) return "";
+  return new Date(value).toLocaleString();
+}
+
+
+async function loadInvLogs() {
+  await loadPdfLogs();
+  await loadQualityHistory();
+  await loadMattsHistory();
+}
+
+async function loadMattsHistory() {
+  const { data, error } = await supabaseClient
+    .from("customer_inventory_matts")
+    .select("*")
+    .order("inventory_date", { ascending: false })
+    .order("imported_at", { ascending: false });
+
+  const tbody = document.getElementById("matts-history-body");
+  tbody.innerHTML = "";
+
+  if (error) {
+    console.error(error);
+    tbody.innerHTML = `<tr><td colspan="12">Could not load Matt's history.</td></tr>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="12">No Matt's history found.</td></tr>`;
+    return;
+  }
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${fmtDate(row.inventory_date)}</td>
+      <td>${fmtDateTime(row.imported_at)}</td>
+      <td>${row.item || ""}</td>
+      <td>${row.on_hand_pharr ?? ""}</td>
+      <td>${row.on_order_pharr ?? ""}</td>
+      <td>${row.on_hand_harlingen ?? ""}</td>
+      <td>${row.on_order_harlingen ?? ""}</td>
+      <td>${row.on_hand_palmview ?? ""}</td>
+      <td>${row.on_order_palmview ?? ""}</td>
+      <td>${row.on_hand_san_benito ?? ""}</td>
+      <td>${row.on_order_san_benito ?? ""}</td>
+      <td>${row.created_by_name || row.created_by_email || ""}</td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+
+
+async function loadPdfLogs() {
+  const { data, error } = await supabaseClient
+    .from("inv_pdf_logs")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const tbody = document.getElementById("pdf-logs-body");
+  tbody.innerHTML = "";
+
+  if (error) {
+    console.error(error);
+    tbody.innerHTML = `<tr><td colspan="2">Could not load PDF logs.</td></tr>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="2">No PDF logs found.</td></tr>`;
+    return;
+  }
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+
+	tr.innerHTML = `
+	  <td style="width:240px;">${fmtDateTime(row.created_at)}</td>
+      <td style="word-break:break-word;">${row.pdf_url ? `<a href="${row.pdf_url}" target="_blank">Open PDF</a>` : ""}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadQualityHistory() {
+  const { data, error } = await supabaseClient
+    .from("customer_inventory_quality")
+    .select("*")
+    .order("inventory_date", { ascending: false })
+    .order("imported_at", { ascending: false });
+
+  const tbody = document.getElementById("quality-history-body");
+  tbody.innerHTML = "";
+
+  if (error) {
+    console.error(error);
+    tbody.innerHTML = `<tr><td colspan="7">Could not load Quality history.</td></tr>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7">No Quality history found.</td></tr>`;
+    return;
+  }
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${fmtDate(row.inventory_date)}</td>
+      <td>${fmtDateTime(row.imported_at)}</td>
+      <td>${row.item || ""}</td>
+      <td>${row.available ?? ""}</td>
+      <td>${row.on_order ?? ""}</td>
+      <td>${row.have_not_recd ?? ""}</td>
+      <td>${row.created_by_name || row.created_by_email || ""}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>

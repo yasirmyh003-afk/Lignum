@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dropdown Master</title>
+  <link rel="stylesheet" href="global.css" />
+<link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+
+<style>
+  .page-row {
+    align-items: center;
+    margin-bottom: 26px;
+  }
+
+  /* ===== Dropdown Cards ===== */
+
+  .config-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+
+  .config-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+  }
+
+  .config-card-header {
+    margin: 20px 20px 0;
+    background: linear-gradient(135deg, #156082 0%, #0f4a63 100%);
+    color: #ffffff;
+    border-radius: 14px;
+    padding: 13px 16px;
+    box-shadow: 0 10px 22px rgba(21, 96, 130, 0.16);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .config-card-title {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .config-card-body {
+    padding: 18px 20px 22px;
+  }
+
+  .config-add-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .config-add-row input {
+    width: 100%;
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+
+  .config-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  .config-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e5edf4;
+    border-radius: 12px;
+    padding: 12px 12px;
+    box-shadow: 0 5px 14px rgba(15, 23, 42, 0.03);
+  }
+
+  .config-item-text {
+    font-size: 14px;
+    font-weight: 300;
+    color: #0f172a;
+    word-break: break-word;
+  }
+
+  .empty-note {
+    font-size: 13px;
+    color: #64748b;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    font-weight: 800;
+  }
+
+  /* ===== Store Settings Table Card ===== */
+
+  .page-frame > section.card {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 22px;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+    margin-bottom: 24px;
+    padding: 28px;
+  }
+
+  .page-frame > section.card .card-pad {
+    padding: 0;
+    margin-bottom: 18px;
+  }
+
+  .page-frame > section.card .card-title-row {
+    margin-bottom: 0;
+  }
+
+  .page-frame > section.card .card-title-row .icon {
+    display: none;
+  }
+
+  .page-frame > section.card .card-title {
+    width: 100%;
+    display: block;
+    background: linear-gradient(135deg, #156082 0%, #0f4a63 100%);
+    color: #ffffff;
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 22px rgba(21, 96, 130, 0.16);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 900;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  .table-wrap {
+    width: 100%;
+    padding: 0 !important;
+    margin: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-sizing: border-box;
+    border-radius: 14px;
+  }
+
+  .table {
+    width: max-content !important;
+    min-width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #ffffff;
+    font-size: 13px;
+    overflow: hidden;
+    border-radius: 14px;
+    table-layout: auto !important;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  }
+
+  .table thead tr {
+    background: #eef2f5 !important;
+  }
+
+  .table th {
+    background: #eef2f5 !important;
+    color: #475569 !important;
+    padding: 12px 14px !important;
+    text-align: left !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .table td {
+    padding: 11px 14px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    color: #0f172a !important;
+    font-size: 13px !important;
+    font-weight: 300 !important;
+    background: #ffffff;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .table tbody tr:nth-child(even) td {
+    background: #f8fafc !important;
+  }
+
+  .table tbody tr:hover td {
+    background: #f1f5f9 !important;
+  }
+
+  .table input {
+    width: 90px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 7px 8px;
+    text-align: center;
+    font-weight: 300;
+  }
+
+  .table input:focus {
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(21, 96, 130, 0.16);
+  }
+
+  @media(max-width: 1100px) {
+    .config-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media(max-width: 760px) {
+    .page-row {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .page-actions,
+    .page-actions .btn {
+      width: 100%;
+    }
+
+    .config-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page-frame > section.card {
+      padding: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <div id="sidebar-mount" class="sidebar-mount"></div>
+
+    <main class="page-shell">
+      <div class="page-frame">
+        <div class="page-row">
+          <div class="page-hero" style="margin-bottom: 0;">
+            <h1>Dropdown Master</h1>
+            <p>Manage dropdown master values and Quality/Matt market settings.</p>
+          </div>
+
+          <div class="page-actions">
+            <button class="btn btn-secondary" onclick="refreshDropdownPage()">Refresh</button>
+          </div>
+        </div>
+
+        <div class="config-grid">
+          <div class="config-card">
+            <div class="config-card-header"><div class="config-card-title">Location</div></div>
+            <div class="config-card-body">
+              <div class="config-add-row">
+                <input id="input-location" type="text" placeholder="Add location" />
+                <button class="btn btn-primary btn-sm" onclick="addDropdownValue('location')">Add</button>
+              </div>
+              <div class="config-list" id="list-location"></div>
+            </div>
+          </div>
+
+          <div class="config-card">
+            <div class="config-card-header"><div class="config-card-title">Mill</div></div>
+            <div class="config-card-body">
+              <div class="config-add-row">
+                <input id="input-mill" type="text" placeholder="Add mill" />
+                <button class="btn btn-primary btn-sm" onclick="addDropdownValue('mill')">Add</button>
+              </div>
+              <div class="config-list" id="list-mill"></div>
+            </div>
+          </div>
+
+          <div class="config-card">
+            <div class="config-card-header"><div class="config-card-title">Grade</div></div>
+            <div class="config-card-body">
+              <div class="config-add-row">
+                <input id="input-grade" type="text" placeholder="Add grade" />
+                <button class="btn btn-primary btn-sm" onclick="addDropdownValue('grade')">Add</button>
+              </div>
+              <div class="config-list" id="list-grade"></div>
+            </div>
+          </div>
+
+          <div class="config-card">
+            <div class="config-card-header"><div class="config-card-title">Size</div></div>
+            <div class="config-card-body">
+              <div class="config-add-row">
+                <input id="input-size" type="text" placeholder="Add size" />
+                <button class="btn btn-primary btn-sm" onclick="addDropdownValue('size')">Add</button>
+              </div>
+              <div class="config-list" id="list-size"></div>
+            </div>
+          </div>
+
+          <div class="config-card">
+            <div class="config-card-header"><div class="config-card-title">Species</div></div>
+            <div class="config-card-body">
+              <div class="config-add-row">
+                <input id="input-specie" type="text" placeholder="Add species" />
+                <button class="btn btn-primary btn-sm" onclick="addDropdownValue('specie')">Add</button>
+              </div>
+              <div class="config-list" id="list-specie"></div>
+            </div>
+          </div>
+
+          <div class="config-card">
+            <div class="config-card-header"><div class="config-card-title">INV</div></div>
+            <div class="config-card-body">
+              <div class="config-add-row">
+                <input id="input-inv" type="text" placeholder="Add inv" />
+                <button class="btn btn-primary btn-sm" onclick="addDropdownValue('inv')">Add</button>
+              </div>
+              <div class="config-list" id="list-inv"></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="card" style="margin-top:28px;">
+          <div class="card-pad" style="padding-bottom:12px;">
+            <div class="card-title-row">
+     
+              <div class="card-title">Store / Size Market Settings</div>
+            </div>
+            <div id="quality-settings-status" class="inline-status"></div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="table" style="min-width:1500px;">
+              <thead>
+                <tr>
+                  <th>Stores</th>
+                  <th>Size</th>
+                  <th>92 Mkt</th>
+                  <th>92</th>
+                  <th>104</th>
+                  <th>116</th>
+                  <th>8</th>
+                  <th>10</th>
+                  <th>12</th>
+                  <th>14</th>
+                  <th>16</th>
+                  <th>18</th>
+                  <th>20</th>
+                  <th>Last Edited By</th>
+                </tr>
+              </thead>
+              <tbody id="quality-settings-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="layout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+
+  <script>
+    const categories = ["location", "mill", "grade", "size", "specie", "inv"];
+
+    const settingColumns = [
+      "mkt_92",
+      "len_92",
+      "len_104",
+      "len_116",
+      "len_8",
+      "len_10",
+      "len_12",
+      "len_14",
+      "len_16",
+      "len_18",
+      "len_20"
+    ];
+
+
+	
+	document.addEventListener("DOMContentLoaded", async function () {
+  await requireLogin();
+  loadSidebar("dropdown-config");
+  await loadDropdownMaster();
+  await loadQualityStoreSettings();
+});
+
+    function setQualitySettingsStatus(message, type = "info") {
+      const status = document.getElementById("quality-settings-status");
+      if (!status) return;
+
+      status.className = "inline-status show " + type;
+      status.textContent = message;
+
+      clearTimeout(status._timer);
+      status._timer = setTimeout(() => {
+        status.className = "inline-status";
+        status.textContent = "";
+      }, 2500);
+    }
+
+    async function loadDropdownMaster() {
+      try {
+        const { data, error } = await supabaseClient
+          .from("dropdown_options")
+          .select("*")
+          .order("value", { ascending: true });
+
+        if (error) throw error;
+
+        categories.forEach(category => {
+          const list = document.getElementById(`list-${category}`);
+          if (list) list.innerHTML = "";
+        });
+
+        categories.forEach(category => {
+          const items = data.filter(row => row.category === category);
+          const list = document.getElementById(`list-${category}`);
+          if (!list) return;
+
+          if (items.length === 0) {
+            list.innerHTML = `<div class="empty-note">No values added yet.</div>`;
+            return;
+          }
+
+          items.forEach(item => {
+            const row = document.createElement("div");
+            row.className = "config-item";
+            row.innerHTML = `
+              <div class="config-item-text">
+                ${item.value}
+                <div style="font-size:11px;color:#64748b;margin-top:4px;">
+                  Added by: ${item.created_by_name || item.created_by_email || ""}
+                </div>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="deleteDropdownValue('${item.id}')">Delete</button>
+            `;
+            list.appendChild(row);
+          });
+        });
+      } catch (error) {
+        console.error("Dropdown master load error:", error);
+        showAppModal({
+          type: "error",
+          title: "Load Failed",
+          message: "Could not load dropdown master values."
+        });
+      }
+    }
+
+    async function addDropdownValue(category) {
+      try {
+        const auditUser = await getAuditUser();
+
+        const input = document.getElementById(`input-${category}`);
+        const value = input?.value.trim();
+
+        if (!value) {
+          showAppModal({
+            type: "error",
+            title: "Missing Value",
+            message: `Please enter a value for ${category}.`
+          });
+          return;
+        }
+
+        const { error } = await supabaseClient
+          .from("dropdown_options")
+          .insert([{
+            category,
+            value,
+            created_by_name: auditUser.name,
+            created_by_email: auditUser.email
+          }]);
+
+        if (error) {
+          if (error.code === "23505") {
+            showAppModal({
+              type: "error",
+              title: "Duplicate Value",
+              message: `This ${category} value already exists.`
+            });
+            return;
+          }
+          throw error;
+        }
+
+        input.value = "";
+        await loadDropdownMaster();
+
+        showAppModal({
+          type: "success",
+          title: "Value Added",
+          message: `${value} was added to ${category}.`
+        });
+      } catch (error) {
+        console.error("Add dropdown value error:", error);
+        showAppModal({
+          type: "error",
+          title: "Add Failed",
+          message: "Could not save the dropdown value."
+        });
+      }
+    }
+
+    async function deleteDropdownValue(id) {
+      try {
+        const { error } = await supabaseClient
+          .from("dropdown_options")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        await loadDropdownMaster();
+      } catch (error) {
+        console.error("Delete dropdown value error:", error);
+        showAppModal({
+          type: "error",
+          title: "Delete Failed",
+          message: "Could not delete the dropdown value."
+        });
+      }
+    }
+
+
+
+async function loadQualityStoreSettings() {
+  try {
+    const { data, error } = await supabaseClient
+      .from("quality_store_settings")
+      .select("*")
+      .order("store", { ascending: true })
+      .order("size", { ascending: true });
+
+    if (error) throw error;
+
+    console.log("quality_store_settings loaded:", data);
+
+    const tbody = document.getElementById("quality-settings-body");
+    if (!tbody) {
+      console.error("quality-settings-body not found");
+      return;
+    }
+
+    tbody.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="14" style="text-align:center;padding:20px;color:#64748b;font-weight:800;">
+            No store settings found. If rows exist in Supabase, check RLS policies.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${row.store || ""}</td>
+        <td>${row.size || ""}</td>
+        ${settingColumns.map(col => `
+          <td>
+            <input
+              type="number"
+              step="0.01"
+              value="${row[col] ?? ""}"
+              style="min-width:80px;text-align:center;"
+              onchange="updateQualityStoreSetting('${row.id}', '${col}', this.value)"
+            />
+          </td>
+        `).join("")}
+        <td>${row.updated_by_name || row.updated_by_email || ""}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+  } catch (error) {
+    console.error("Quality settings load error:", error);
+    setQualitySettingsStatus("Could not load store settings.", "error");
+  }
+}
+
+
+async function updateQualityStoreSetting(id, field, value) {
+  try {
+    const auditUser = await getAuditUser();
+
+    const payload = {
+      updated_by_name: auditUser.name,
+      updated_by_email: auditUser.email,
+      updated_at: new Date().toISOString()
+    };
+
+    payload[field] = value === "" ? null : Number(value);
+
+    const { error } = await supabaseClient
+      .from("quality_store_settings")
+      .update(payload)
+      .eq("id", id);
+
+    if (error) throw error;
+
+    setQualitySettingsStatus("Store setting updated.", "success");
+    await loadQualityStoreSettings();
+
+  } catch (error) {
+    console.error("Quality setting update error:", error);
+    setQualitySettingsStatus("Update failed.", "error");
+  }
+}
+
+async function refreshDropdownPage() {
+  await loadDropdownMaster();
+  await loadQualityStoreSettings();
+}
+  </script>
+</body>
+</html>

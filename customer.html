@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer</title>
+  <link rel="stylesheet" href="global.css" />
+<link rel="icon" type="image/png" sizes="32x32" href="icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+<style>
+  .page-row {
+    align-items: center;
+    margin-bottom: 26px;
+  }
+
+  .page-frame > section.card {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 22px;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+    margin-bottom: 24px;
+    padding: 28px;
+  }
+
+  .page-frame > section.card .card-pad {
+    padding: 0;
+    margin-bottom: 18px;
+  }
+
+  .page-frame > section.card .card-title-row {
+    margin-bottom: 0;
+  }
+
+  .page-frame > section.card .card-title-row .icon {
+    display: none;
+  }
+
+  .page-frame > section.card .card-title {
+    width: 100%;
+    display: block;
+    background: linear-gradient(135deg, #156082 0%, #0f4a63 100%);
+    color: #ffffff;
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 22px rgba(21, 96, 130, 0.16);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 900;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  .table-wrap {
+    width: 100%;
+    padding: 0 !important;
+    margin: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-sizing: border-box;
+    border-radius: 14px;
+  }
+
+  .table {
+    width: max-content !important;
+    min-width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #ffffff;
+    font-size: 13px;
+    overflow: hidden;
+    border-radius: 14px;
+    table-layout: auto !important;
+    border: 1px solid #dbe4ee;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  }
+
+  .table thead tr {
+    background: #eef2f5 !important;
+  }
+
+  .table th {
+    background: #eef2f5 !important;
+    color: #475569 !important;
+    padding: 12px 14px !important;
+    text-align: left !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .table td {
+    padding: 11px 14px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    color: #0f172a !important;
+    font-size: 13px !important;
+    font-weight: 300 !important;
+    background: #ffffff;
+    vertical-align: middle;
+    white-space: normal;
+    line-height: 1.3;
+  }
+
+  .table tbody tr:nth-child(even) td {
+    background: #f8fafc !important;
+  }
+
+  .table tbody tr:hover td {
+    background: #f1f5f9 !important;
+  }
+
+  .editable-cell {
+    min-width: 120px;
+    outline: none;
+    border-radius: 7px;
+    padding: 7px 8px;
+  }
+
+  .editable-cell:hover {
+    background: #f8fafc;
+  }
+
+  .editable-cell:focus {
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(21, 96, 130, 0.16);
+  }
+
+  .table th:nth-child(1), .table td:nth-child(1) { min-width: 150px; }
+  .table th:nth-child(2), .table td:nth-child(2) { min-width: 150px; }
+  .table th:nth-child(3), .table td:nth-child(3) { min-width: 220px; }
+  .table th:nth-child(4), .table td:nth-child(4) { min-width: 120px; }
+  .table th:nth-child(5), .table td:nth-child(5) { min-width: 90px; }
+  .table th:nth-child(6), .table td:nth-child(6) { min-width: 90px; }
+  .table th:nth-child(7), .table td:nth-child(7) { min-width: 140px; }
+  .table th:nth-child(8), .table td:nth-child(8) { min-width: 160px; }
+  .table th:nth-child(9), .table td:nth-child(9),
+  .table th:nth-child(10), .table td:nth-child(10),
+  .table th:nth-child(11), .table td:nth-child(11) { min-width: 180px; }
+  .table th:nth-child(12), .table td:nth-child(12),
+  .table th:nth-child(13), .table td:nth-child(13),
+  .table th:nth-child(14), .table td:nth-child(14),
+  .table th:nth-child(15), .table td:nth-child(15) { min-width: 190px; }
+  .table th:nth-child(16), .table td:nth-child(16) { min-width: 150px; }
+  .table th:nth-child(17), .table td:nth-child(17) { min-width: 110px; }
+
+  @media(max-width: 900px) {
+    .page-row {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .page-actions,
+    .page-actions .btn {
+      width: 100%;
+    }
+
+    .page-frame > section.card {
+      padding: 20px;
+    }
+
+    .page-frame > section.card .card-title {
+      font-size: 16px;
+      padding: 13px 16px;
+    }
+  }
+</style>
+
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-mount" class="sidebar-mount"></div>
+
+  <main class="page-shell">
+    <div class="page-frame">
+      <div class="page-row">
+        <div class="page-hero" style="margin-bottom:0;">
+          <h1>Customer</h1>
+          <p>Manage customer destination, notes, and email contacts.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="addCustomerRow()">+ Add Line</button>
+          <button class="btn btn-secondary" onclick="loadCustomers()">Refresh</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="card-pad" style="padding-bottom:12px;">
+          <div class="card-title-row">
+
+            <div class="card-title">Customer Table</div>
+          </div>
+          <div id="customer-status" class="inline-status"></div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table" style="min-width:2550px;">
+            <thead>
+              <tr>
+                <th>Destination</th>
+                <th>Title</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip</th>
+                <th>Phone</th>
+                <th>Hours</th>
+                <th>Note1</th>
+                <th>Note2</th>
+                <th>Note3</th>
+                <th>Email 1</th>
+                <th>Email 2</th>
+                <th>Email 3</th>
+                <th>Email 4</th>
+                <th>Last Updated By</th>
+				<th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customer-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script src="layout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+const customerColumns = [
+  { field: "destination", label: "Destination" },
+  { field: "title", label: "Title" },
+  { field: "address", label: "Address" },
+  { field: "city", label: "City" },
+  { field: "state", label: "State" },
+  { field: "zip", label: "Zip" },
+  { field: "phone", label: "Phone" },
+  { field: "hours", label: "Hours" },
+  { field: "note1", label: "Note1" },
+  { field: "note2", label: "Note2" },
+  { field: "note3", label: "Note3" },
+  { field: "email_1", label: "Email 1" },
+  { field: "email_2", label: "Email 2" },
+  { field: "email_3", label: "Email 3" },
+  { field: "email_4", label: "Email 4" }
+];
+
+document.addEventListener("DOMContentLoaded", function () {
+  loadSidebar("customer");
+  loadCustomers();
+});
+
+function setCustomerStatus(message, type = "info") {
+  const status = document.getElementById("customer-status");
+  status.className = "inline-status show " + type;
+  status.textContent = message;
+  clearTimeout(status._timer);
+  status._timer = setTimeout(() => {
+    status.className = "inline-status";
+    status.textContent = "";
+  }, 2200);
+}
+
+async function loadCustomers() {
+  const { data, error } = await supabaseClient
+    .from("customers")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    setCustomerStatus("Could not load Customer records.", "error");
+    return;
+  }
+
+  const tbody = document.getElementById("customer-body");
+  tbody.innerHTML = "";
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+
+    customerColumns.forEach(col => {
+      const td = document.createElement("td");
+      const div = document.createElement("div");
+
+      div.className = "editable-cell";
+      div.contentEditable = "true";
+      div.textContent = row[col.field] ?? "";
+
+      div.addEventListener("blur", async function () {
+        await updateCustomerCell(row.id, col.field, div.textContent.trim());
+      });
+
+      div.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          div.blur();
+        }
+      });
+
+      td.appendChild(div);
+      tr.appendChild(td);
+    });
+
+	const userTd = document.createElement("td");
+	userTd.textContent = row.updated_by_name || row.created_by_name || "";
+	tr.appendChild(userTd);
+
+    const actionTd = document.createElement("td");
+    actionTd.innerHTML = `
+      <button class="btn btn-danger btn-sm" onclick="deleteCustomerRow('${row.id}')">
+        Delete
+      </button>
+    `;
+    tr.appendChild(actionTd);
+
+    tbody.appendChild(tr);
+  });
+}
+
+async function updateCustomerCell(id, field, value) {
+  const auditUser = await getAuditUser();
+
+  const payload = {};
+  payload[field] = value || null;
+  payload.updated_by_name = auditUser.name;
+  payload.updated_by_email = auditUser.email;
+
+  const { error } = await supabaseClient
+    .from("customers")
+    .update(payload)
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    setCustomerStatus("Update failed.", "error");
+    return;
+  }
+
+  setCustomerStatus("Customer updated.", "success");
+}
+
+async function addCustomerRow() {
+  const auditUser = await getAuditUser();
+
+  const { error } = await supabaseClient
+    .from("customers")
+    .insert([{
+      destination: "",
+      title: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+      phone: "",
+      hours: "",
+      note1: "",
+      note2: "",
+      note3: "",
+      email_1: "",
+      email_2: "",
+      email_3: "",
+      email_4: "",
+      created_by_name: auditUser.name,
+      created_by_email: auditUser.email,
+      updated_by_name: auditUser.name,
+      updated_by_email: auditUser.email
+    }]);
+
+  if (error) {
+    console.error(error);
+    setCustomerStatus("Could not add line.", "error");
+    return;
+  }
+
+  await loadCustomers();
+  setCustomerStatus("New line added.", "success");
+}
+
+async function deleteCustomerRow(id) {
+  const { error } = await supabaseClient
+    .from("customers")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    setCustomerStatus("Delete failed.", "error");
+    return;
+  }
+
+  await loadCustomers();
+  setCustomerStatus("Row deleted.", "success");
+}
+</script>
+</body>
+</html>
