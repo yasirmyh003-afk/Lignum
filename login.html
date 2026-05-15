@@ -98,6 +98,25 @@ async function loginUser() {
   window.location.href = "dashboard.html";
 }
 
+
+  function showLoginRedirectMessage() {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("inactive") === "1") {
+    alert("Your account is inactive. Please contact an administrator.");
+  }
+
+  if (params.get("deleted") === "1") {
+    alert("Your account no longer exists. Please contact an administrator.");
+  }
+
+  if (params.get("loggedout") === "1") {
+    console.log("User is not logged in.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", showLoginRedirectMessage);
+
 </script>
 
 </body>
