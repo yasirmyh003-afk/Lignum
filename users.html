@@ -481,7 +481,14 @@ async function saveUserEdit(userId, oldEmail) {
     return;
   }
 
-  const ok = confirm("Save user changes and send password reset email to " + email + "?");
+  const normalizedOldEmail = String(oldEmail || "").trim().toLowerCase();
+  const emailChanged = normalizedOldEmail !== email;
+
+  const confirmMessage = emailChanged
+    ? "Save changes and send password setup/reset email to the new email?"
+    : "Save user changes? No email will be sent because the email was not changed.";
+
+  const ok = confirm(confirmMessage);
   if (!ok) return;
 
   setUsersStatus("Saving user changes...", "info");
@@ -489,7 +496,7 @@ async function saveUserEdit(userId, oldEmail) {
   const { data, error } = await supabaseClient.functions.invoke("admin-update-user", {
     body: {
       appUserId: userId,
-      oldEmail,
+      oldEmail: normalizedOldEmail,
       fullName,
       email,
       role,
@@ -503,20 +510,37 @@ async function saveUserEdit(userId, oldEmail) {
     return;
   }
 
-  const { error: resetError } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + "/update-password.html"
-  });
+  /*
+    Only send email when email changed.
+    If only name/status/role changed, no email is sent.
+  */
+  if (emailChanged) {
+    const { error: resetError } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/update-password.html"
+    });
 
-  if (resetError) {
-    console.error(resetError);
-    setUsersStatus("User updated, but password reset email could not be sent.", "error");
+    if (resetError) {
+      console.error(resetError);
+      setUsersStatus("User updated, but password setup/reset email could not be sent.", "error");
+      editingUserId = null;
+      loadUsers();
+      return;
+    }
+
     editingUserId = null;
+    setUsersStatus("User updated and password setup/reset email sent to new email.", "success");
     loadUsers();
     return;
   }
 
   editingUserId = null;
-  setUsersStatus("User updated and password reset email sent.", "success");
+
+  if (status === "Inactive") {
+    setUsersStatus("User updated and deactivated. They cannot login now.", "success");
+  } else {
+    setUsersStatus("User updated successfully. No email was sent.", "success");
+  }
+
   loadUsers();
 }
 
