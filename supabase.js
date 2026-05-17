@@ -3,6 +3,9 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 
 
+
+
+
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
@@ -30,34 +33,36 @@ function isPublicPage() {
   return PUBLIC_PAGES.includes(getCurrentPageName());
 }
 
-/*
-  Hide protected pages immediately before dashboard/table UI flashes.
-  Login/update-password stay visible.
-*/
-if (!isPublicPage()) {
+function addAuthCheckingStyle() {
+  if (isPublicPage()) return;
+
   document.documentElement.classList.add("auth-checking");
 
-  const authStyle = document.createElement("style");
-  authStyle.id = "auth-checking-style";
-  authStyle.textContent = `
-    html.auth-checking body {
-      visibility: hidden !important;
-    }
-  `;
-  document.head.appendChild(authStyle);
+  if (!document.getElementById("auth-checking-style")) {
+    const authStyle = document.createElement("style");
+    authStyle.id = "auth-checking-style";
+    authStyle.textContent = `
+      html.auth-checking body {
+        visibility: hidden !important;
+      }
+    `;
+    document.head.appendChild(authStyle);
+  }
 }
 
 function showProtectedPage() {
   document.documentElement.classList.remove("auth-checking");
 }
 
+addAuthCheckingStyle();
+
+function getBasePath() {
+  const path = window.location.pathname;
+  return path.substring(0, path.lastIndexOf("/") + 1);
+}
+
 function getLoginUrl(reason = "") {
-  const basePath = window.location.pathname.includes("/")
-    ? window.location.pathname.substring(0, window.location.pathname.lastIndexOf("/") + 1)
-    : "/";
-
-  const url = `${window.location.origin}${basePath}login.html`;
-
+  const url = `${window.location.origin}${getBasePath()}login.html`;
   return reason ? `${url}?${reason}=1` : url;
 }
 
@@ -99,6 +104,11 @@ async function getCurrentAppUser() {
 }
 
 async function requireLogin() {
+  if (isPublicPage()) {
+    showProtectedPage();
+    return null;
+  }
+
   const user = await getCurrentSessionUser();
 
   if (!user) {
@@ -108,10 +118,6 @@ async function requireLogin() {
 
   const appUser = await getCurrentAppUser();
 
-  /*
-    If user was deleted from app_users OR inactive,
-    sign out and redirect to login page before showing dashboard.
-  */
   if (!appUser || appUser.status !== "Active") {
     await supabaseClient.auth.signOut();
 
@@ -124,6 +130,44 @@ async function requireLogin() {
   showProtectedPage();
   return appUser;
 }
+
+/*
+  Safety fallback:
+  If any page forgets to call requireLogin(), or page JS breaks before showing,
+  this still checks auth and shows the page for active users.
+*/
+async function autoReleaseProtectedPage() {
+  if (isPublicPage()) return;
+
+  if (!document.documentElement.classList.contains("auth-checking")) return;
+
+  const user = await getCurrentSessionUser();
+
+  if (!user) {
+    window.location.replace(getLoginUrl("loggedout"));
+    return;
+  }
+
+  const appUser = await getCurrentAppUser();
+
+  if (!appUser || appUser.status !== "Active") {
+    await supabaseClient.auth.signOut();
+
+    const reason = !appUser ? "deleted" : "inactive";
+    window.location.replace(getLoginUrl(reason));
+    return;
+  }
+
+  showProtectedPage();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  setTimeout(autoReleaseProtectedPage, 300);
+});
+
+/* =========================================================
+   AUDIT / LOGOUT HELPERS
+========================================================= */
 
 async function getAuditUser() {
   const appUser = await getCurrentAppUser();
