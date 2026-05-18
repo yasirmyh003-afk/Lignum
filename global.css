@@ -51,7 +51,14 @@ body {
   font-family: Inter, Arial, sans-serif;
 }
 
+html {
+  width: 100%;
+  max-width: 100%;
+}
+
 body {
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
 }
 
@@ -65,6 +72,7 @@ textarea {
 .app-shell {
   display: flex;
   min-height: 100vh;
+  width: 100%;
 }
 
 .sidebar-mount {
@@ -82,6 +90,7 @@ textarea {
 .page-frame {
   max-width: var(--content-max);
   margin: 0 auto;
+  width: 100%;
 }
 
 .page-hero {
@@ -130,11 +139,11 @@ textarea {
 }
 
 .col-12 { grid-column: span 12; }
-.col-9  { grid-column: span 9; }
-.col-8  { grid-column: span 8; }
-.col-6  { grid-column: span 6; }
-.col-4  { grid-column: span 4; }
-.col-3  { grid-column: span 3; }
+.col-9 { grid-column: span 9; }
+.col-8 { grid-column: span 8; }
+.col-6 { grid-column: span 6; }
+.col-4 { grid-column: span 4; }
+.col-3 { grid-column: span 3; }
 
 .card {
   background: var(--card-bg);
@@ -1123,16 +1132,6 @@ textarea:focus {
 }
 
 @media (max-width: 760px) {
-  .mobile-menu-btn,
-.mobile-top-bar {
-  display: none;
-}
-
-.mobile-sidebar-overlay {
-  display: none;
-}
-
-@media (max-width: 760px) {
   .mobile-top-bar {
     display: block !important;
     position: fixed;
@@ -1155,7 +1154,6 @@ textarea:focus {
     backdrop-filter: blur(10px);
   }
 
-  /* Default button: left side of screen */
   .mobile-menu-btn {
     display: flex !important;
     position: fixed;
@@ -1186,7 +1184,6 @@ textarea:focus {
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
   }
 
-  /* When menu opens, button moves on top of sidebar as X */
   .mobile-menu-btn.menu-open {
     left: 204px;
     top: 14px;
@@ -1233,20 +1230,34 @@ textarea:focus {
     width: 0 !important;
   }
 }
+
 /* =========================================================
    MOBILE BASE LAYOUT
 ========================================================= */
 
 @media (max-width: 760px) {
+  html,
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .app-shell,
+  .page-shell,
+  .page-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
   .page-shell {
     margin-left: 0 !important;
-    width: 100% !important;
     padding: 76px 14px 14px !important;
   }
 
   .page-frame {
-    max-width: 100%;
-    width: 100%;
+    margin: 0 !important;
   }
 
   .page-hero {
@@ -1402,38 +1413,36 @@ textarea:focus {
 
 @media (max-width: 760px) {
   .table-wrap,
-  .quote-tables,
-  .ao-board {
+  .quote-tables {
+    width: 100% !important;
+    max-width: 100% !important;
     overflow-x: auto !important;
+    overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
   }
 
   .table,
-  .quote-mini-table,
-  .ao-table {
+  .quote-mini-table {
     min-width: 850px !important;
     width: max-content !important;
   }
 
   .table th,
-  .quote-mini-table th,
-  .ao-table th {
+  .quote-mini-table th {
     font-size: 9px !important;
     padding: 10px 12px !important;
     white-space: nowrap !important;
   }
 
   .table td,
-  .quote-mini-table td,
-  .ao-table td {
+  .quote-mini-table td {
     font-size: 12px !important;
     padding: 10px 12px !important;
     white-space: nowrap !important;
   }
 
   .table-wrap::after,
-  .quote-tables::after,
-  .ao-board::after {
+  .quote-tables::after {
     content: "Scroll sideways to view full table →";
     display: block;
     margin-top: 10px;
@@ -1445,14 +1454,15 @@ textarea:focus {
 
 /* =========================================================
    MOBILE CUSTOM TABLES
-   Reload / Truck Release / Matt's / Quality
+   Reload / Truck Release / Matt's / Quality / Active Orders
 ========================================================= */
 
 @media (max-width: 760px) {
   .tr-table-card,
   .reload-board,
   .matts-board,
-  .quality-board {
+  .quality-board,
+  .ao-board {
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: visible !important;
@@ -1465,6 +1475,7 @@ textarea:focus {
   .reload-subtitle,
   .matts-title,
   .quality-title,
+  .ao-title,
   .matts-board .section-heading,
   .quality-board .section-heading {
     width: 100% !important;
@@ -1476,20 +1487,24 @@ textarea:focus {
     left: auto !important;
     z-index: auto !important;
     box-sizing: border-box !important;
-    font-size: 17px !important;
-    padding: 13px 16px !important;
+    font-size: 16px !important;
+    padding: 13px 15px !important;
     border-radius: 14px !important;
     overflow: hidden !important;
+    white-space: normal !important;
   }
 
   .truck-table,
   .reload-table,
   .matts-table,
-  .quality-table {
+  .quality-table,
+  .ao-table {
     display: block !important;
     width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
@@ -1503,18 +1518,19 @@ textarea:focus {
   .matts-table thead,
   .matts-table tbody,
   .quality-table thead,
-  .quality-table tbody {
+  .quality-table tbody,
+  .ao-table thead,
+  .ao-table tbody {
     display: table !important;
     width: max-content !important;
   }
 
   .truck-table thead,
-  .truck-table tbody {
-    min-width: 900px !important;
-  }
-
+  .truck-table tbody,
   .reload-table thead,
-  .reload-table tbody {
+  .reload-table tbody,
+  .ao-table thead,
+  .ao-table tbody {
     min-width: 900px !important;
   }
 
@@ -1528,7 +1544,8 @@ textarea:focus {
   .truck-table tr,
   .reload-table tr,
   .matts-table tr,
-  .quality-table tr {
+  .quality-table tr,
+  .ao-table tr {
     display: table-row !important;
   }
 
@@ -1539,7 +1556,9 @@ textarea:focus {
   .matts-table th,
   .matts-table td,
   .quality-table th,
-  .quality-table td {
+  .quality-table td,
+  .ao-table th,
+  .ao-table td {
     min-width: 90px !important;
     font-size: 12px !important;
     padding: 10px 12px !important;
@@ -1549,19 +1568,21 @@ textarea:focus {
   .truck-table th,
   .reload-table th,
   .matts-table th,
-  .quality-table th {
+  .quality-table th,
+  .ao-table th {
     font-size: 9px !important;
   }
 
   .matts-table .label-cell,
   .quality-table .label-cell {
-    min-width: 150px !important;
+    min-width: 145px !important;
   }
 
   .tr-table-card::after,
   .reload-section::after,
   .matts-table::after,
-  .quality-table::after {
+  .quality-table::after,
+  .ao-board::after {
     content: "Scroll sideways to view full table →";
     display: block;
     width: 100%;
@@ -1586,6 +1607,8 @@ textarea:focus {
   .quotation-filter-card,
   .tr-form-card,
   .ao-filter-card {
+    width: 100% !important;
+    max-width: 100% !important;
     border-radius: 18px !important;
   }
 
@@ -1641,62 +1664,58 @@ textarea:focus {
 }
 
 /* =========================================================
-   VERY SMALL PHONES
+   MOBILE FIX - LOG PAGES / INV LOGS
 ========================================================= */
 
-@media (max-width: 420px) {
-  .page-shell {
-    padding: 76px 12px 12px !important;
+@media (max-width: 760px) {
+  .page-frame > section.card {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 18px !important;
+    overflow: hidden !important;
   }
 
-  .page-hero h1 {
-    font-size: 23px;
+  .page-frame > section.card .card-title {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 15px !important;
+    padding: 13px 15px !important;
+    white-space: normal !important;
   }
 
-  .page-hero p {
-    font-size: 12px;
+  .page-frame > section.card .table-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .card-pad {
-    padding: 14px;
-  }
-
-  .length-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .btn {
-    font-size: 13px;
-    padding: 11px 14px;
-  }
-
-  .table,
-  .quote-mini-table,
-  .ao-table {
+  .page-frame > section.card .table {
+    width: max-content !important;
     min-width: 760px !important;
   }
 
-  .truck-table thead,
-  .truck-table tbody,
-  .reload-table thead,
-  .reload-table tbody {
-    min-width: 820px !important;
+  .page-frame > section.card:first-of-type .table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
   }
 
-  .matts-table thead,
-  .matts-table tbody,
-  .quality-table thead,
-  .quality-table tbody {
-    min-width: 1000px !important;
+  .page-frame > section.card:first-of-type .table th:first-child,
+  .page-frame > section.card:first-of-type .table td:first-child {
+    width: 150px !important;
+  }
+
+  .page-frame > section.card:first-of-type .table th,
+  .page-frame > section.card:first-of-type .table td {
+    white-space: normal !important;
+    word-break: break-word !important;
   }
 }
 
-
-
-
 /* =========================================================
    MOBILE FIX - DROPDOWN CONFIG ITEMS
-   Makes value area wider and Delete button compact
 ========================================================= */
 
 @media (max-width: 760px) {
@@ -1741,5 +1760,57 @@ textarea:focus {
 
   .config-list {
     gap: 10px !important;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 420px) {
+  .page-shell {
+    padding: 76px 12px 12px !important;
+  }
+
+  .page-hero h1 {
+    font-size: 23px;
+  }
+
+  .page-hero p {
+    font-size: 12px;
+  }
+
+  .card-pad {
+    padding: 14px;
+  }
+
+  .length-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .btn {
+    font-size: 13px;
+    padding: 11px 14px;
+  }
+
+  .table,
+  .quote-mini-table {
+    min-width: 760px !important;
+  }
+
+  .truck-table thead,
+  .truck-table tbody,
+  .reload-table thead,
+  .reload-table tbody,
+  .ao-table thead,
+  .ao-table tbody {
+    min-width: 820px !important;
+  }
+
+  .matts-table thead,
+  .matts-table tbody,
+  .quality-table thead,
+  .quality-table tbody {
+    min-width: 1000px !important;
   }
 }
