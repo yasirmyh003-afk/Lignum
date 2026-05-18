@@ -2212,3 +2212,198 @@ textarea:focus {
     color: #64748b !important;
   }
 }
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   FINAL HARD FIX - MOBILE CONFIG + LOG TABLES
+   Fixes vertical/stacked headers and overlapping values
+========================================================= */
+
+@media (max-width: 760px) {
+  /*
+    Important:
+    Some pages have inline overflow-x:hidden wrappers.
+    This overrides them so tables can scroll horizontally.
+  */
+  .page-frame [style*="overflow-x:hidden"],
+  .page-frame [style*="overflow-x: hidden"],
+  .page-frame .table-wrap,
+  .config-card .table-wrap,
+  .config-card,
+  .card {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /*
+    Do not allow tables to shrink into mobile width.
+    This is what was causing headers to become vertical.
+  */
+  .page-frame table,
+  .page-frame table.table,
+  .config-card table,
+  .config-card table.table,
+  table.table {
+    display: table !important;
+    width: max-content !important;
+    min-width: 1200px !important;
+    max-width: none !important;
+    table-layout: auto !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+  }
+
+  .page-frame table thead,
+  .page-frame table.table thead,
+  .config-card table thead,
+  table.table thead {
+    display: table-header-group !important;
+  }
+
+  .page-frame table tbody,
+  .page-frame table.table tbody,
+  .config-card table tbody,
+  table.table tbody {
+    display: table-row-group !important;
+  }
+
+  .page-frame table tr,
+  .page-frame table.table tr,
+  .config-card table tr,
+  table.table tr {
+    display: table-row !important;
+  }
+
+  .page-frame table th,
+  .page-frame table.table th,
+  .config-card table th,
+  table.table th {
+    display: table-cell !important;
+    width: auto !important;
+    min-width: 120px !important;
+    max-width: none !important;
+
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+    padding: 12px 14px !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+  }
+
+  .page-frame table td,
+  .page-frame table.table td,
+  .config-card table td,
+  table.table td {
+    display: table-cell !important;
+    width: auto !important;
+    min-width: 120px !important;
+    max-width: none !important;
+
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    padding: 12px 14px !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+  }
+
+  /*
+    Wider first column for PDF links / names / labels
+  */
+  .page-frame table th:first-child,
+  .page-frame table td:first-child,
+  .config-card table th:first-child,
+  .config-card table td:first-child,
+  table.table th:first-child,
+  table.table td:first-child {
+    min-width: 160px !important;
+  }
+
+  /*
+    Keep action/delete column compact but readable
+  */
+  .page-frame table th:last-child,
+  .page-frame table td:last-child,
+  .config-card table th:last-child,
+  .config-card table td:last-child,
+  table.table th:last-child,
+  table.table td:last-child {
+    min-width: 120px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  .page-frame table td:last-child button,
+  .page-frame table td:last-child .btn,
+  .config-card table td:last-child button,
+  .config-card table td:last-child .btn,
+  table.table td:last-child button,
+  table.table td:last-child .btn {
+    width: auto !important;
+    min-width: 76px !important;
+    max-width: 100px !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+
+  /*
+    The scroll hint should appear under the scroll container,
+    not inside table cells.
+  */
+  .table-wrap::after {
+    content: "Scroll sideways to view full table →" !important;
+    display: block !important;
+    margin-top: 10px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    color: #64748b !important;
+  }
+}
+
+/* =========================================================
+   DESKTOP/LAPTOP TABLE AUTO WIDTH
+   Columns grow based on largest value instead of fixed tiny width
+========================================================= */
+
+@media (min-width: 761px) {
+  .page-frame table,
+  .page-frame table.table,
+  .config-card table,
+  .config-card table.table,
+  table.table {
+    table-layout: auto !important;
+  }
+
+  .page-frame table th,
+  .page-frame table td,
+  .config-card table th,
+  .config-card table td,
+  table.table th,
+  table.table td {
+    width: auto !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+}
