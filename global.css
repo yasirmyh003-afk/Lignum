@@ -1946,3 +1946,269 @@ textarea:focus {
     color: #64748b !important;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   FINAL OVERRIDE - CONFIG + LOG TABLES RESPONSIVE FIX
+   Put this at the VERY BOTTOM of global.css
+========================================================= */
+
+/* Desktop/Laptop: columns size naturally based on largest value */
+.config-card .table-wrap,
+.config-card .config-table-wrap,
+.logs-table-wrap,
+.log-table-wrap,
+.page-frame > section.card .table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.config-card table,
+.config-card .table,
+.logs-table,
+.log-table,
+.page-frame > section.card table.table {
+  width: max-content !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  table-layout: auto !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.config-card table th,
+.config-card .table th,
+.logs-table th,
+.log-table th,
+.page-frame > section.card table.table th {
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  line-height: 1.35 !important;
+}
+
+.config-card table td,
+.config-card .table td,
+.logs-table td,
+.log-table td,
+.page-frame > section.card table.table td {
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  line-height: 1.35 !important;
+}
+
+/* Keep action/delete columns compact */
+.config-card table th:last-child,
+.config-card table td:last-child,
+.config-card .table th:last-child,
+.config-card .table td:last-child,
+.logs-table th:last-child,
+.logs-table td:last-child,
+.log-table th:last-child,
+.log-table td:last-child,
+.page-frame > section.card table.table th:last-child,
+.page-frame > section.card table.table td:last-child {
+  min-width: 110px !important;
+  width: 110px !important;
+  max-width: 130px !important;
+}
+
+.config-card table td:last-child button,
+.config-card .table td:last-child button,
+.logs-table td:last-child button,
+.log-table td:last-child button,
+.page-frame > section.card table.table td:last-child button,
+.config-card table td:last-child .btn,
+.config-card .table td:last-child .btn,
+.logs-table td:last-child .btn,
+.log-table td:last-child .btn,
+.page-frame > section.card table.table td:last-child .btn {
+  width: auto !important;
+  min-width: 78px !important;
+  max-width: 96px !important;
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+}
+
+/* Mobile: prevent vertical headers and force horizontal table scroll */
+@media (max-width: 760px) {
+  .config-card,
+  .page-frame > section.card {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .config-card .table-wrap,
+  .config-card .config-table-wrap,
+  .logs-table-wrap,
+  .log-table-wrap,
+  .page-frame > section.card .table-wrap,
+  .table-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 14px !important;
+  }
+
+  .config-card table,
+  .config-card .table,
+  .logs-table,
+  .log-table,
+  .page-frame > section.card table.table,
+  .table {
+    display: table !important;
+    width: max-content !important;
+    min-width: 900px !important;
+    max-width: none !important;
+    table-layout: auto !important;
+  }
+
+  .config-card table thead,
+  .config-card table tbody,
+  .config-card .table thead,
+  .config-card .table tbody,
+  .logs-table thead,
+  .logs-table tbody,
+  .log-table thead,
+  .log-table tbody,
+  .page-frame > section.card table.table thead,
+  .page-frame > section.card table.table tbody,
+  .table thead,
+  .table tbody {
+    display: table-row-group !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  .config-card table thead,
+  .config-card .table thead,
+  .logs-table thead,
+  .log-table thead,
+  .page-frame > section.card table.table thead,
+  .table thead {
+    display: table-header-group !important;
+  }
+
+  .config-card table tr,
+  .config-card .table tr,
+  .logs-table tr,
+  .log-table tr,
+  .page-frame > section.card table.table tr,
+  .table tr {
+    display: table-row !important;
+  }
+
+  .config-card table th,
+  .config-card .table th,
+  .logs-table th,
+  .log-table th,
+  .page-frame > section.card table.table th,
+  .table th {
+    display: table-cell !important;
+    min-width: 130px !important;
+    width: auto !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+    padding: 11px 12px !important;
+    text-align: left !important;
+  }
+
+  .config-card table td,
+  .config-card .table td,
+  .logs-table td,
+  .log-table td,
+  .page-frame > section.card table.table td,
+  .table td {
+    display: table-cell !important;
+    min-width: 130px !important;
+    width: auto !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    padding: 11px 12px !important;
+    vertical-align: middle !important;
+  }
+
+  /* First column wider for names/links */
+  .config-card table th:first-child,
+  .config-card table td:first-child,
+  .config-card .table th:first-child,
+  .config-card .table td:first-child,
+  .logs-table th:first-child,
+  .logs-table td:first-child,
+  .log-table th:first-child,
+  .log-table td:first-child,
+  .page-frame > section.card table.table th:first-child,
+  .page-frame > section.card table.table td:first-child,
+  .table th:first-child,
+  .table td:first-child {
+    min-width: 150px !important;
+  }
+
+  /* Last/action column compact */
+  .config-card table th:last-child,
+  .config-card table td:last-child,
+  .config-card .table th:last-child,
+  .config-card .table td:last-child,
+  .logs-table th:last-child,
+  .logs-table td:last-child,
+  .log-table th:last-child,
+  .log-table td:last-child,
+  .page-frame > section.card table.table th:last-child,
+  .page-frame > section.card table.table td:last-child,
+  .table th:last-child,
+  .table td:last-child {
+    min-width: 110px !important;
+    width: 110px !important;
+    max-width: 120px !important;
+  }
+
+  .table-wrap::after,
+  .config-table-wrap::after,
+  .logs-table-wrap::after,
+  .log-table-wrap::after {
+    content: "Scroll sideways to view full table →" !important;
+    display: block !important;
+    margin-top: 10px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    color: #64748b !important;
+  }
+}
