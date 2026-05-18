@@ -1814,3 +1814,135 @@ textarea:focus {
     min-width: 1000px !important;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   FINAL FIX - MOBILE CONFIG / DROPDOWN TABLES
+   Fixes Origin / Carrier / Customer tables showing laptop/broken vertical headers
+========================================================= */
+
+@media (max-width: 760px) {
+  /* Main config page cards */
+  .config-card,
+  .page-frame > section.card {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Any table wrapper inside config-style pages must scroll horizontally */
+  .config-card .table-wrap,
+  .page-frame > section.card .table-wrap,
+  .table-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 14px !important;
+  }
+
+  /* Fix table itself */
+  .config-card table,
+  .config-card .table,
+  .page-frame > section.card table.table,
+  .table {
+    width: max-content !important;
+    min-width: 760px !important;
+    max-width: none !important;
+    table-layout: auto !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+  }
+
+  /* Stop header letters from stacking vertically */
+  .config-card table th,
+  .config-card .table th,
+  .page-frame > section.card table.table th,
+  .table th {
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    min-width: 110px !important;
+    width: auto !important;
+    font-size: 9px !important;
+    line-height: 1.3 !important;
+    padding: 11px 12px !important;
+    text-align: left !important;
+  }
+
+  /* Stop body values from overlapping */
+  .config-card table td,
+  .config-card .table td,
+  .page-frame > section.card table.table td,
+  .table td {
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    min-width: 110px !important;
+    width: auto !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    padding: 11px 12px !important;
+    vertical-align: middle !important;
+  }
+
+  /* Delete/action buttons should not become giant columns */
+  .config-card table th:last-child,
+  .config-card table td:last-child,
+  .page-frame > section.card table.table th:last-child,
+  .page-frame > section.card table.table td:last-child,
+  .table th:last-child,
+  .table td:last-child {
+    min-width: 96px !important;
+    width: 96px !important;
+    max-width: 110px !important;
+  }
+
+  .config-card table td:last-child .btn,
+  .page-frame > section.card table.table td:last-child .btn,
+  .table td:last-child .btn,
+  .config-card table td:last-child button,
+  .page-frame > section.card table.table td:last-child button,
+  .table td:last-child button {
+    width: auto !important;
+    min-width: 74px !important;
+    max-width: 90px !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* First column should stay readable */
+  .config-card table th:first-child,
+  .config-card table td:first-child,
+  .page-frame > section.card table.table th:first-child,
+  .page-frame > section.card table.table td:first-child,
+  .table th:first-child,
+  .table td:first-child {
+    min-width: 130px !important;
+  }
+
+  /* Make scroll hint clean */
+  .table-wrap::after {
+    content: "Scroll sideways to view full table →" !important;
+    display: block !important;
+    margin-top: 10px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    color: #64748b !important;
+  }
+}
